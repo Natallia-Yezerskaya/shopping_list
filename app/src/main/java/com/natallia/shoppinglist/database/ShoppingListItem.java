@@ -6,13 +6,14 @@ import io.realm.RealmObject;
 /**
  * Created by Administrator on 20.12.15.
  */
-public class CheckList extends RealmObject {
+public class ShoppingListItem extends RealmObject {
 
     private int id;
-   // private ShopList shopList;
+   // private ShoppingList shopList;
     private int position;
-    private RealmList<Item> items;
+    private Item item;
     private boolean checked;
+    private float count;
 
     public boolean isChecked() {
         return checked;
@@ -30,12 +31,13 @@ public class CheckList extends RealmObject {
         this.id = id;
     }
 
-    public RealmList<Item> getItems() {
-        return items;
+
+    public Item getItem() {
+        return item;
     }
 
-    public void setItems(RealmList<Item> items) {
-        this.items = items;
+    public void setItem(Item item) {
+        this.item = item;
     }
 
     public int getPosition() {
@@ -46,11 +48,18 @@ public class CheckList extends RealmObject {
         this.position = position;
     }
 
-   /* public ShopList getShopList() {
+    public float getCount() {
+        return count;
+    }
+
+    public void setCount(float count) {
+        this.count = count;
+    }
+/* public ShoppingList getShopList() {
         return shopList;
     }
 
-    public void setShopList(ShopList shopList) {
+    public void setShopList(ShoppingList shopList) {
         this.shopList = shopList;
     }
 */

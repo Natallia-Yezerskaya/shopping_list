@@ -9,19 +9,16 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.natallia.shoppinglist.UI.ActivityListener;
 import com.natallia.shoppinglist.UI.MaterialMenuDrawable;
-import com.natallia.shoppinglist.database.Category;
-import com.natallia.shoppinglist.fragments.ListFragment;
-
-import io.realm.Realm;
+import com.natallia.shoppinglist.database.DataManager;
+import com.natallia.shoppinglist.fragments.CategoryListFragment;
+import com.natallia.shoppinglist.fragments.ShoppingListsFragment;
 
 public class MainActivity extends AppCompatActivity implements ActivityListener{
 
@@ -33,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements ActivityListener{
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
 
-    public static Realm realm;
+    private DataManager dataManager;
 
     private boolean          direction;
 
@@ -45,13 +42,12 @@ public class MainActivity extends AppCompatActivity implements ActivityListener{
 
         initToolbar();
 
-       realm = Realm.getInstance(this);
-        //basicCRUD(realm);
-
+        dataManager = new DataManager(this);
+        DataManager.InitializeData();
 
         FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
 
-        ListFragment fragment  = ListFragment.getInstance("djkgfhsg", getIntent());
+        ShoppingListsFragment fragment  = ShoppingListsFragment.getInstance("djkgfhsg", getIntent());
         tr.replace(R.id.container, fragment, "First");
         tr.commit();
 
@@ -65,54 +61,7 @@ public class MainActivity extends AppCompatActivity implements ActivityListener{
         //rootLayout.addView(tv);
     }
 
-    public static void basicCRUD(Realm realm) {
-      //  showStatus("Perform basic Create/Read/Update/Delete (CRUD) operations...");
 
-        // All writes must be wrapped in a transaction to facilitate safe multi threading
-        realm.beginTransaction();
-
-        // Add a category
-        if (realm.allObjects(Category.class).size() == 0) {
-            int id = realm.allObjects(Category.class).max("id").intValue();
-            ;
-            Category category = realm.createObject(Category.class);
-            category.setId(++id);
-            category.setName("Продукты"); // TODO перенести в стринги
-
-
-            category = realm.createObject(Category.class);
-            //category.setId(2);
-            category.setName("Бытовая химия");
-
-            realm.commitTransaction();
-
-
-
-        category = realm.where(Category.class).findFirst();
-        Log.d(TAG, category.getName());
-        // When the transaction is committed, all changes a synced to disk.
-        }
-
-
-       /*
-        // Find the first person (no query conditions) and read a field
-        person = realm.where(Person.class).findFirst();
-        showStatus(person.getName() + ":" + person.getAge());
-
-        // Update person in a transaction
-        realm.beginTransaction();
-        person.setName("Senior Person");
-        person.setAge(99);
-        showStatus(person.getName() + " got older: " + person.getAge());
-        realm.commitTransaction();
-
-        // Delete all persons
-        realm.beginTransaction();
-        realm.allObjects(Person.class).clear();
-        realm.commitTransaction();
-
-        */
-    }
 
     private void initToolbar(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,17 +16,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.natallia.shoppinglist.MainActivity;
 import com.natallia.shoppinglist.R;
 import com.natallia.shoppinglist.UI.ActivityListener;
+import com.natallia.shoppinglist.adapters.MyCategoryRecyclerAdapter;
+import com.natallia.shoppinglist.adapters.ShoppingListRecyclerAdapter;
+import com.natallia.shoppinglist.database.Category;
+import com.natallia.shoppinglist.database.DataManager;
+import com.natallia.shoppinglist.database.ShoppingList;
+
+import java.util.List;
 
 import io.realm.Realm;
 
-import static com.natallia.shoppinglist.MainActivity.basicCRUD;
-import static com.natallia.shoppinglist.MainActivity.realm;
 
-
-public class ListFragment extends Fragment {
+public class ShoppingListsFragment extends Fragment {
 
 
     private static String KEA_AAA = "sfafsafa";
@@ -38,13 +43,18 @@ public class ListFragment extends Fragment {
 
     private ActivityListener mActivityListener;
 
-    public ListFragment() {
+
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
+    public ShoppingListsFragment() {
         this.aaa = aaa;
 
     }
 
-    public static ListFragment getInstance (String aaa,Intent intent){
-        ListFragment fragment = new ListFragment();
+    public static ShoppingListsFragment getInstance (String aaa,Intent intent){
+        ShoppingListsFragment fragment = new ShoppingListsFragment();
         intent.putExtra(KEA_AAA,aaa);
         return fragment;
 
@@ -60,20 +70,28 @@ public class ListFragment extends Fragment {
         aaa = getActivity().getIntent().getStringExtra(KEA_AAA);
 
         // if (KEY_number == 1){
-        View view = inflater.inflate(R.layout.fragment_list,container,false);
-        // else if (KEY_number == 2){
-        //     View view = inflater.inflate(R.layout.fragment_details,container,false);}
-        // else
-        //  {View view = inflater.inflate(R.layout.fragment_details2,container,false);}
+        // прописываем layout фрагмента
+        View view = inflater.inflate(R.layout.shopping_list_fragment,container,false);
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_shopping_list); //отображает все шопинг листы
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 
-        // mTextView = (TextView) .findViewById(R.id.textView);
-        //    mTextView.setText(aaa);
 
+        List<ShoppingList> values = DataManager.getShoppingLists();
+
+
+
+
+
+       // mRecyclerView = (RecyclerView) view.findViewById(R.id.rv);
+
+       // mLayoutManager = new LinearLayoutManager(this.getContext());
+       // mRecyclerView.setLayoutManager(mLayoutManager);
+        mAdapter = new ShoppingListRecyclerAdapter(getContext(),values); //TODO MyShoppingListsRecyclerAdapter
+        mRecyclerView.setAdapter(mAdapter);
 
         return view;
-
-
     }
 
 
@@ -143,13 +161,8 @@ public class ListFragment extends Fragment {
         switch (item.getItemId()){
             case R.id.my_action:
 
-                Log.d("hdkjshfka", "onOptionsItemSelected");
+                Log.d("ShoppingList", "onOptionsItemSelected"); //TODO проверить работу кнопок в каждом фрагменте
                 break;
-
-
-
-
-            //basicCRUD(realm);
 
 
         }
