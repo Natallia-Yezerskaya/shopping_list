@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.natallia.shoppinglist.R;
@@ -35,7 +36,7 @@ public class ShoppingListsFragment extends Fragment {
     private static String KEA_AAA = "sfafsafa";
     private static int KEY_number ;
     private int keyNumber ;
-    public TextView mTextView;
+    public EditText mEditText;
 
     private Realm realm;
 
@@ -75,6 +76,7 @@ public class ShoppingListsFragment extends Fragment {
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_shopping_list); //отображает все шопинг листы
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
 
 
 
@@ -160,6 +162,8 @@ public class ShoppingListsFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.my_action:
+                DataManager.createShoppingList();
+                mAdapter.notifyDataSetChanged();
 
                 Log.d("ShoppingList", "onOptionsItemSelected"); //TODO проверить работу кнопок в каждом фрагменте
                 break;

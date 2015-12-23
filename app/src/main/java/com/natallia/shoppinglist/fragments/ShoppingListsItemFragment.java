@@ -159,8 +159,11 @@ public class ShoppingListsItemFragment extends Fragment {
         switch (item.getItemId()){
             case R.id.my_action:
 
+
+
                 Log.d("ShoppingList", "onOptionsItemSelected"); //TODO проверить работу кнопок в каждом фрагменте
                 break;
+
 
 
         }

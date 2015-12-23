@@ -9,6 +9,7 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Created by Natallia on 22.12.2015.
@@ -35,13 +36,30 @@ public class DataManager {
 
     public static List<ShoppingList> getShoppingLists() {
 
-        final RealmResults<ShoppingList> results = realm.where(ShoppingList.class).findAll();
+        final RealmResults<ShoppingList> results = realm.where(ShoppingList.class).findAllSorted("id", Sort.DESCENDING);
         return results;
     }
     public static List<ShoppingListItem> getShoppingListItems(ShoppingList shoppingList) {
 
 
         return  shoppingList.getItems();
+    }
+
+    public static void setNameShoppingList(ShoppingList shoppingList, String name) {
+        realm.beginTransaction();
+        shoppingList.setName(name);
+        realm.commitTransaction();
+    }
+    public static void setExpanded(ShoppingList shoppingList, boolean expanded) {
+        realm.beginTransaction();
+        shoppingList.setExpanded(expanded);
+        realm.commitTransaction();
+    }
+
+    public static void toggleExpanded(ShoppingList shoppingList) {
+        realm.beginTransaction();
+        shoppingList.setExpanded(!shoppingList.isExpanded());
+        realm.commitTransaction();
     }
 
     public static void  deleteCategory(Category category) {
@@ -51,12 +69,24 @@ public class DataManager {
         realm.commitTransaction();
     }
 
-    public static int getNextId(Class<? extends RealmObject> clazz) {
+       public static int getNextId(Class<? extends RealmObject> clazz) {
         final Number currentMaxId = realm.where(clazz).max("id");
         if (currentMaxId == null) {
             return 1;
         }
         return currentMaxId.intValue() + 1;
+    }
+
+    public static ShoppingList createShoppingList() {
+        realm.beginTransaction();
+        ShoppingList shoppingList = realm.createObject(ShoppingList.class);
+        shoppingList.setId(getNextId(ShoppingList.class));
+        shoppingList.setName("Продукты");
+       // shoppingList.getItems().add(realm.where(ShoppingListItem.class).findFirst());
+        shoppingList.setExpanded(true);
+
+        realm.commitTransaction();
+        return shoppingList;
     }
 
     public static void InitializeData() {
@@ -143,12 +173,13 @@ public class DataManager {
             shoppingList.setId(getNextId(ShoppingList.class));
             shoppingList.setName("Голубцы");
             shoppingList.getItems().addAll(realm.where(ShoppingListItem.class).findAll());   // TODO перенести в стринги
-
+            shoppingList.setExpanded(true);
 
             shoppingList = realm.createObject(ShoppingList.class);
             shoppingList.setId(getNextId(ShoppingList.class));
             shoppingList.setName("Продукты");
             shoppingList.getItems().add(realm.where(ShoppingListItem.class).findFirst());
+            shoppingList.setExpanded(true);
 
         }
 

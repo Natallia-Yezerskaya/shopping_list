@@ -9,14 +9,15 @@
         android:layout_height="wrap_content"
         android:background="#fff555">
 
-        <TextView
+        <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_shopping_list_name"
-            android:text="НАзвание"
+            android:id="@+id/et_shopping_list_name"
+            android:text="new Shopping list"
             android:textColor="@android:color/black"
             android:textSize="20dp"
             android:layout_weight="3"
+            android:singleLine="true"
             />
         <Button
             android:layout_width="wrap_content"
