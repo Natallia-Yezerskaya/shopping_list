@@ -43,7 +43,7 @@ public class MyCategoryRecyclerAdapter extends RecyclerView.Adapter<MyCategoryRe
     public CategoryHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         // создаем новый view
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item,parent,false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item,parent,false);
 
         return new CategoryHolder(v);
     }

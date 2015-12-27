@@ -6,9 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.natallia.shoppinglist.R;
+import com.natallia.shoppinglist.database.DataManager;
+import com.natallia.shoppinglist.database.Item;
 import com.natallia.shoppinglist.database.ShoppingList;
 import com.natallia.shoppinglist.database.ShoppingListItem;
 
@@ -22,13 +25,13 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
     //будет хранить данные одного item
     public class ShoppingListItemHolder extends RecyclerView.ViewHolder {
 
-        public TextView mTextView_name;
+        public EditText mTextView_name;
        // public TextView mTextView_number;
         public Button mButton_icon;
         public CheckBox mCheckBox;
         public ShoppingListItemHolder(View itemView) {
             super(itemView);
-            mTextView_name = (TextView) itemView.findViewById(R.id.tv_item_name);
+            mTextView_name = (EditText) itemView.findViewById(R.id.tv_item_name);
            // mTextView_number = (TextView) itemView.findViewById(R.id.tv_number);
             mButton_icon = (Button) itemView.findViewById(R.id.btn_icon);
             mCheckBox = (CheckBox)itemView.findViewById(R.id.checkbox_item);
@@ -59,7 +62,15 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
 
     @Override
     public void onBindViewHolder(ShoppingListItemHolder holder, final int position) {
-            holder.mTextView_name.setText(shoppingListItems.get(position).getItem().getName());
+        final Item item = shoppingListItems.get(position).getItem();
+            holder.mTextView_name.setText(item.getName());
+            holder.mTextView_name.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                DataManager.setNameShoppingListItem(item, ((EditText) v).getText().toString());
+                //notifyDataSetChanged();
+            }
+        });
            // holder.mTextView_number.setText(Integer.toString(position));
             holder.mButton_icon.setOnClickListener(new View.OnClickListener() {
                 @Override

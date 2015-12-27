@@ -14,26 +14,31 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.natallia.shoppinglist.R;
 import com.natallia.shoppinglist.UI.ActivityListener;
-import com.natallia.shoppinglist.adapters.ShoppingListRecyclerAdapter;
+import com.natallia.shoppinglist.adapters.ShoppingListItemRecyclerAdapter;
 import com.natallia.shoppinglist.database.DataManager;
 import com.natallia.shoppinglist.database.ShoppingList;
+import com.natallia.shoppinglist.database.ShoppingListItem;
 
 import java.util.List;
 
 import io.realm.Realm;
 
-/*
-public class ShoppingListsItemFragment extends Fragment {
+
+public class ShoppingListsEditFragment extends Fragment {
 
 
     private static String KEA_AAA = "sfafsafa";
     private static int KEY_number ;
     private int keyNumber ;
-    public TextView mTextView;
+    public EditText mEditText;
+    private ShoppingList mShoppingList;
+    private int mShoppingListId;
 
     private Realm realm;
 
@@ -41,19 +46,21 @@ public class ShoppingListsItemFragment extends Fragment {
 
     private ActivityListener mActivityListener;
 
-
+    private TextView mTextView;
     private RecyclerView mRecyclerView;
+    private Button mButton_add;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    public ShoppingListsItemFragment() {
+    public ShoppingListsEditFragment() {
         this.aaa = aaa;
 
     }
 
-    public static ShoppingListsItemFragment getInstance (String aaa,Intent intent){
-        ShoppingListsItemFragment fragment = new ShoppingListsItemFragment();
-        intent.putExtra(KEA_AAA,aaa);
+    public static ShoppingListsEditFragment getInstance (String aaa,Intent intent){
+        ShoppingListsEditFragment fragment = new ShoppingListsEditFragment();
+
+       fragment.mShoppingListId = intent.getIntExtra("ShoppingListId",0);
         return fragment;
 
     }
@@ -69,24 +76,33 @@ public class ShoppingListsItemFragment extends Fragment {
 
         // if (KEY_number == 1){
         // прописываем layout фрагмента
-        View view = inflater.inflate(R.layout.shopping_list_item_element,container,false);
+        View view = inflater.inflate(R.layout.shopping_list_edit_fragment, container, false);
 
-       // mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_shopping_list);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mTextView = (TextView) view.findViewById(R.id.tv_shopping_list_name);
+        final ShoppingList shoppingList = DataManager.getShoppingListById(mShoppingListId);
+        mTextView.setText(shoppingList.getName());
+
+        mButton_add = (Button) view.findViewById(R.id.btn_add);
+        mButton_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DataManager.createShoppingListItem(shoppingList);
+                mAdapter.notifyDataSetChanged();
+
+            }
+        });
 
 
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_edit_items); //отображает все шопинг листы
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));//TODO
 
-        List<ShoppingList> values = DataManager.getShoppingLists();  //TODO getShoppingLists
+      // int id = getActivity().getIntent().getIntExtra("ShoppingListId",0);
 
 
+        List<ShoppingListItem> values = shoppingList.getItems();
 
 
-
-       // mRecyclerView = (RecyclerView) view.findViewById(R.id.rv);
-
-        mLayoutManager = new LinearLayoutManager(this.getContext());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new ShoppingListRecyclerAdapter(getContext(),values); //TODO MyShoppingListsRecyclerAdapter
+        mAdapter = new ShoppingListItemRecyclerAdapter(values); //TODO MyShoppingListsRecyclerAdapter
         mRecyclerView.setAdapter(mAdapter);
 
         return view;
@@ -158,12 +174,11 @@ public class ShoppingListsItemFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.my_action:
-
-
+                DataManager.createShoppingList();
+                mAdapter.notifyDataSetChanged();
 
                 Log.d("ShoppingList", "onOptionsItemSelected"); //TODO проверить работу кнопок в каждом фрагменте
                 break;
-
 
 
         }
@@ -174,4 +189,3 @@ public class ShoppingListsItemFragment extends Fragment {
 
 
 }
-*/

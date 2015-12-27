@@ -1,5 +1,6 @@
 package com.natallia.shoppinglist;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,11 +17,14 @@ import android.widget.TextView;
 
 import com.natallia.shoppinglist.UI.ActivityListener;
 import com.natallia.shoppinglist.UI.MaterialMenuDrawable;
+import com.natallia.shoppinglist.UI.OnShoppingListEdit;
 import com.natallia.shoppinglist.database.DataManager;
+import com.natallia.shoppinglist.database.ShoppingList;
 import com.natallia.shoppinglist.fragments.CategoryListFragment;
+import com.natallia.shoppinglist.fragments.ShoppingListsEditFragment;
 import com.natallia.shoppinglist.fragments.ShoppingListsFragment;
 
-public class MainActivity extends AppCompatActivity implements ActivityListener{
+public class MainActivity extends AppCompatActivity implements ActivityListener,OnShoppingListEdit{
 
     public static final String TAG = MainActivity.class.getName();
 
@@ -31,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements ActivityListener{
     private ActionBarDrawerToggle mDrawerToggle;
 
     private DataManager dataManager;
+    private FragmentTransaction tr;
 
     private boolean          direction;
 
@@ -45,9 +50,10 @@ public class MainActivity extends AppCompatActivity implements ActivityListener{
         dataManager = new DataManager(this);
         DataManager.InitializeData();
 
-        FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
+        tr = getSupportFragmentManager().beginTransaction();
 
         ShoppingListsFragment fragment  = ShoppingListsFragment.getInstance("djkgfhsg", getIntent());
+        fragment.onShoppingListEdit = this;
         tr.replace(R.id.container, fragment, "First");
         tr.commit();
 
@@ -187,11 +193,29 @@ public class MainActivity extends AppCompatActivity implements ActivityListener{
 
     @Override
     public void changeFragment(Fragment fragment) {
-
+        tr = getSupportFragmentManager().beginTransaction();
+        tr.replace(R.id.container, fragment, "Edit");
+        tr.addToBackStack(null);
+        tr.commit();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return super.onCreateOptionsMenu(menu);
+    }
+
+
+    public void openEditShoppingListFragment(int shoppingListId){
+        Intent intent = getIntent();
+        intent.putExtra("ShoppingListId",shoppingListId);
+        ShoppingListsEditFragment fragment  = ShoppingListsEditFragment.getInstance("djkgfhsg",intent);
+        changeFragment(fragment);
+
+    }
+
+
+    @Override
+    public void onShoppingListEdit(int shoppingListId) {
+        openEditShoppingListFragment(shoppingListId);
     }
 }

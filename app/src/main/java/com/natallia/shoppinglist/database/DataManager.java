@@ -50,10 +50,21 @@ public class DataManager {
         shoppingList.setName(name);
         realm.commitTransaction();
     }
+    public static void setNameShoppingListItem(Item item, String name) {
+        realm.beginTransaction();
+        item.setName(name);
+        realm.commitTransaction();
+    }
     public static void setExpanded(ShoppingList shoppingList, boolean expanded) {
         realm.beginTransaction();
         shoppingList.setExpanded(expanded);
         realm.commitTransaction();
+    }
+
+    public static ShoppingList getShoppingListById(int id){
+
+        ShoppingList shoppingList = realm.where(ShoppingList.class).equalTo("id",id).findFirst();
+        return shoppingList;
     }
 
     public static void toggleExpanded(ShoppingList shoppingList) {
@@ -89,6 +100,27 @@ public class DataManager {
         return shoppingList;
     }
 
+    public static ShoppingListItem createShoppingListItem(ShoppingList shoppingList) { //TODO дописать
+        realm.beginTransaction();
+
+        Item item = realm.createObject(Item.class);
+        item.setId(getNextId(Item.class));
+        //shoppingList.getItems().add(item)
+        //item.setCategory("Продукты");
+        // shoppingList.getItems().add(realm.where(ShoppingListItem.class).findFirst());
+        shoppingList.setExpanded(true);
+
+        ShoppingListItem shoppingListItem = realm.createObject(ShoppingListItem.class);
+        shoppingListItem.setId(getNextId(ShoppingListItem.class));
+        shoppingListItem.setPosition(1);
+        shoppingListItem.setItem(item);
+        shoppingListItem.setChecked(false);
+        shoppingListItem.setCount(1f);
+        shoppingList.getItems().add(shoppingListItem);
+
+        realm.commitTransaction();
+        return shoppingListItem;
+    }
     public static void InitializeData() {
         //  showStatus("Perform basic Create/Read/Update/Delete (CRUD) operations...");
 

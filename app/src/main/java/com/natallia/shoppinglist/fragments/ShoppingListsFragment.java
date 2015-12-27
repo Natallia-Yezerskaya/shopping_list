@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,8 +18,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.natallia.shoppinglist.MainActivity;
 import com.natallia.shoppinglist.R;
 import com.natallia.shoppinglist.UI.ActivityListener;
+import com.natallia.shoppinglist.UI.OnShoppingListEdit;
 import com.natallia.shoppinglist.adapters.MyCategoryRecyclerAdapter;
 import com.natallia.shoppinglist.adapters.ShoppingListRecyclerAdapter;
 import com.natallia.shoppinglist.database.Category;
@@ -30,7 +33,7 @@ import java.util.List;
 import io.realm.Realm;
 
 
-public class ShoppingListsFragment extends Fragment {
+public class ShoppingListsFragment extends Fragment  {
 
 
     private static String KEA_AAA = "sfafsafa";
@@ -44,10 +47,12 @@ public class ShoppingListsFragment extends Fragment {
 
     private ActivityListener mActivityListener;
 
+    public OnShoppingListEdit onShoppingListEdit;
+
 
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private ShoppingListRecyclerAdapter mAdapter;
 
     public ShoppingListsFragment() {
         this.aaa = aaa;
@@ -56,7 +61,7 @@ public class ShoppingListsFragment extends Fragment {
 
     public static ShoppingListsFragment getInstance (String aaa,Intent intent){
         ShoppingListsFragment fragment = new ShoppingListsFragment();
-        intent.putExtra(KEA_AAA,aaa);
+        intent.putExtra(KEA_AAA, aaa);
         return fragment;
 
     }
@@ -90,8 +95,11 @@ public class ShoppingListsFragment extends Fragment {
 
        // mLayoutManager = new LinearLayoutManager(this.getContext());
        // mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new ShoppingListRecyclerAdapter(getContext(),values); //TODO MyShoppingListsRecyclerAdapter
+        mAdapter = new ShoppingListRecyclerAdapter(getContext(), values); //TODO MyShoppingListsRecyclerAdapter
+        mAdapter.onShoppingListEdit = onShoppingListEdit;
+
         mRecyclerView.setAdapter(mAdapter);
+
 
         return view;
     }
@@ -167,11 +175,24 @@ public class ShoppingListsFragment extends Fragment {
 
                 Log.d("ShoppingList", "onOptionsItemSelected"); //TODO проверить работу кнопок в каждом фрагменте
                 break;
+            case R.id.my_action1:
+
+               // ShoppingListsEditFragment fragment  = ShoppingListsEditFragment.getInstance("djkgfhsg",getActivity().getIntent());
+               // mActivityListener.changeFragment(fragment);
+
+                //Log.d("ShoppingList", "onOptionsItemSelected"); //TODO проверить работу кнопок в каждом фрагменте
+              // break;
 
 
         }
         return super.onOptionsItemSelected(item);
 
+
+    }
+
+
+
+    public void setTitle(String title) {
 
     }
 
