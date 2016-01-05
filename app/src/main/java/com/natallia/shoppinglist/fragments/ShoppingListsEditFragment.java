@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -52,6 +53,11 @@ public class ShoppingListsEditFragment extends Fragment {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    float historicX = Float.NaN, historicY = Float.NaN;
+    static final int DELTA = 50;
+    enum Direction {LEFT, RIGHT;}
+
+
     public ShoppingListsEditFragment() {
         this.aaa = aaa;
 
@@ -71,6 +77,8 @@ public class ShoppingListsEditFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
+
 
         aaa = getActivity().getIntent().getStringExtra(KEA_AAA);
 
@@ -102,9 +110,36 @@ public class ShoppingListsEditFragment extends Fragment {
         List<ShoppingListItem> values = shoppingList.getItems();
 
 
-        mAdapter = new ShoppingListItemRecyclerAdapter(values); //TODO MyShoppingListsRecyclerAdapter
+        mAdapter = new ShoppingListItemRecyclerAdapter(values,true); //TODO MyShoppingListsRecyclerAdapter
         mRecyclerView.setAdapter(mAdapter);
 
+/*
+        mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        historicX = event.getX();
+                        historicY = event.getY();
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        if (event.getX() - historicX < -DELTA) {
+                            Log.d("влево","влево");
+                            return true;
+                        } else if (event.getX() - historicX > DELTA) {
+                            Log.d("вправо", "вправо");
+                            return true;
+                        }
+                        break;
+                    default:
+                        return false;
+                }
+                return false;
+            }
+        });
+*/
         return view;
     }
 

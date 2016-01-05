@@ -80,6 +80,13 @@ public class DataManager {
         realm.commitTransaction();
     }
 
+    public static void  deleteShoppingListItem(ShoppingListItem shoppingListItem) {
+
+        realm.beginTransaction();
+        shoppingListItem.removeFromRealm();
+        realm.commitTransaction();
+    }
+
        public static int getNextId(Class<? extends RealmObject> clazz) {
         final Number currentMaxId = realm.where(clazz).max("id");
         if (currentMaxId == null) {
@@ -238,4 +245,11 @@ public class DataManager {
 
         */
     }
+
+    public static void toggleChecked(ShoppingListItem shoppingListItem) {
+        realm.beginTransaction();
+        shoppingListItem.setChecked(!shoppingListItem.isChecked());
+        realm.commitTransaction();
+    }
+
 }

@@ -151,7 +151,7 @@ public class ShoppingListRecyclerAdapter extends RecyclerView.Adapter<ShoppingLi
 
         holder.mRecyclerView.setLayoutParams(params);
 
-        ShoppingListItemRecyclerAdapter adapter = new ShoppingListItemRecyclerAdapter(values);
+        ShoppingListItemRecyclerAdapter adapter = new ShoppingListItemRecyclerAdapter(values,false);
         holder.mRecyclerView.setAdapter(adapter);
     }
 
