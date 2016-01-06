@@ -3,6 +3,7 @@ package com.natallia.shoppinglist;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -18,13 +19,17 @@ import android.widget.TextView;
 import com.natallia.shoppinglist.UI.ActivityListener;
 import com.natallia.shoppinglist.UI.MaterialMenuDrawable;
 import com.natallia.shoppinglist.UI.OnShoppingListEdit;
+import com.natallia.shoppinglist.UI.SendSMS;
 import com.natallia.shoppinglist.database.DataManager;
 import com.natallia.shoppinglist.database.ShoppingList;
 import com.natallia.shoppinglist.fragments.CategoryListFragment;
+import com.natallia.shoppinglist.fragments.SendSMSFragment;
 import com.natallia.shoppinglist.fragments.ShoppingListsEditFragment;
 import com.natallia.shoppinglist.fragments.ShoppingListsFragment;
 
-public class MainActivity extends AppCompatActivity implements ActivityListener,OnShoppingListEdit{
+import java.util.Comparator;
+
+public class MainActivity extends AppCompatActivity implements ActivityListener,OnShoppingListEdit,SendSMS{
 
     public static final String TAG = MainActivity.class.getName();
 
@@ -49,14 +54,15 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
 
         dataManager = new DataManager(this);
         DataManager.InitializeData();
+        if (savedInstanceState == null) {
 
-        tr = getSupportFragmentManager().beginTransaction();
+            tr = getSupportFragmentManager().beginTransaction();
 
-        ShoppingListsFragment fragment  = ShoppingListsFragment.getInstance("djkgfhsg", getIntent());
-        fragment.onShoppingListEdit = this;
-        tr.replace(R.id.container, fragment, "First");
-        tr.commit();
-
+            ShoppingListsFragment fragment = ShoppingListsFragment.getInstance("djkgfhsg", getIntent());
+            fragment.onShoppingListEdit = this;
+            tr.replace(R.id.container, fragment, "First");
+            tr.commit();
+        }
     }
 
 
@@ -64,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
         Log.i(TAG, txt);
         TextView tv = new TextView(this);
         tv.setText(txt);
+
         //rootLayout.addView(tv);
     }
 
@@ -208,14 +215,37 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
     public void openEditShoppingListFragment(int shoppingListId){
         Intent intent = getIntent();
         intent.putExtra("ShoppingListId",shoppingListId);
-        ShoppingListsEditFragment fragment  = ShoppingListsEditFragment.getInstance("djkgfhsg",intent);
+        ShoppingListsEditFragment fragment  = ShoppingListsEditFragment.getInstance("djkgfhsg", intent);
+        fragment.sendSMS = this;
         changeFragment(fragment);
-
     }
 
 
     @Override
     public void onShoppingListEdit(int shoppingListId) {
         openEditShoppingListFragment(shoppingListId);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+       //outState.putInt("ShoppingListId");
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void sendSMS(String smsText) {
+        openSendSMSFragment(smsText);
+    }
+
+    public void openSendSMSFragment(String smsText){
+        Intent intent = getIntent();
+        intent.putExtra("SMSText",smsText);
+        SendSMSFragment fragment  = SendSMSFragment.getInstance("djkgfhsg", intent);
+        changeFragment(fragment);
     }
 }

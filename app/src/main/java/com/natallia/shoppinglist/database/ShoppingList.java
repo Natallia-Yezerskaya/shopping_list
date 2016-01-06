@@ -2,6 +2,7 @@ package com.natallia.shoppinglist.database;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.Sort;
 import io.realm.annotations.PrimaryKey;
 
 /**

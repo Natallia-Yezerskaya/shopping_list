@@ -7,7 +7,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#fff555">
+        android:background="#fff555"
+        android:id="@+id/linear_layout_shopping_list">
 
         <EditText
             android:layout_width="wrap_content"

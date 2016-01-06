@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/send_sms"
+        android:icon="@android:drawable/btn_star"
+        android:orderInCategory="100"
+        android:title="SMS"
+        app:showAsAction="always"/>
+
+    <item
 
         android:id="@+id/my_action"
         android:icon="@android:drawable/btn_plus"
@@ -17,5 +24,7 @@
         android:orderInCategory="100"
         android:title="My action"
         app:showAsAction="always"/>
+
+
 
 </menu>

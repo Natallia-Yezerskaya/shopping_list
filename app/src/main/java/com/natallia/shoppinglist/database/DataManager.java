@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.realm.Realm;
@@ -80,6 +81,26 @@ public class DataManager {
         realm.commitTransaction();
     }
 
+    public static void  deleteShoppingList(ShoppingList shoppingList) {
+
+        realm.beginTransaction();
+        shoppingList.removeFromRealm();
+        realm.commitTransaction();
+    }
+
+    public static boolean  shoppingListIsChecked(ShoppingList shoppingList) {
+
+       // realm.beginTransaction();
+       Long count = shoppingList.getItems().where().equalTo("checked",false).count();
+       // realm.commitTransaction();
+        if (count == 0){
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
     public static void  deleteShoppingListItem(ShoppingListItem shoppingListItem) {
 
         realm.beginTransaction();
@@ -249,6 +270,25 @@ public class DataManager {
     public static void toggleChecked(ShoppingListItem shoppingListItem) {
         realm.beginTransaction();
         shoppingListItem.setChecked(!shoppingListItem.isChecked());
+        realm.commitTransaction();
+    }
+
+    public static void swapShoppingListItems(List<ShoppingListItem> shoppingListItems, int fromPosition, int toPosition) {
+        if (fromPosition > toPosition) {
+            int x = toPosition;
+            toPosition = fromPosition;
+            fromPosition = x;
+        }
+
+        realm.beginTransaction();
+
+        final ShoppingListItem from = shoppingListItems.get(fromPosition);
+        final ShoppingListItem to = shoppingListItems.get(toPosition);
+        shoppingListItems.remove(from);
+        shoppingListItems.add(shoppingListItems.indexOf(to), from);
+        shoppingListItems.remove(to);
+        shoppingListItems.add(fromPosition, to);
+        //Collections.swap(shoppingListItems, fromPosition, toPosition);
         realm.commitTransaction();
     }
 
