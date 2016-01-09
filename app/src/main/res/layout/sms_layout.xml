@@ -20,7 +20,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Enter the phone number of recipient"
+                android:text="Номер получателя"
                 android:textColor="#111111"
                 android:layout_alignParentTop="true"
                 android:minHeight="30dp"/>
@@ -29,7 +29,9 @@
                 android:id="@+id/txtPhoneNo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="30dp"/>
+                android:minHeight="30dp"
+                android:inputType="phone"
+                android:textColor="#111111"/>
         </LinearLayout>
         <Button
             android:id="@+id/btn_contacts"
@@ -45,7 +47,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Message"
+        android:text="Сообщение"
         android:background="#ffffff"
         android:textColor="#111111"
         />
@@ -55,6 +57,7 @@
         android:layout_height="400dp"
         android:minHeight="400dp"
         android:gravity="top"
+        android:textColor="#111111"
         />
     <Button
         android:id="@+id/btnSendSMS"

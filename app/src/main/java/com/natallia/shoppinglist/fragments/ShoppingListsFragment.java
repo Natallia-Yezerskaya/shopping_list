@@ -14,33 +14,29 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import com.natallia.shoppinglist.R;
 import com.natallia.shoppinglist.UI.ActivityListener;
 import com.natallia.shoppinglist.UI.OnShoppingListEdit;
-import com.natallia.shoppinglist.UI.SendSMS;
+import com.natallia.shoppinglist.UI.ShoppingListItemAdapterCallback;
 import com.natallia.shoppinglist.adapters.ShoppingListRecyclerAdapter;
 import com.natallia.shoppinglist.database.DataManager;
 import com.natallia.shoppinglist.database.ShoppingList;
-
 import java.util.List;
 
-import io.realm.Realm;
+public class ShoppingListsFragment extends Fragment implements ShoppingListItemAdapterCallback {
 
-
-public class ShoppingListsFragment extends Fragment  {
-
-    private ActivityListener mActivityListener;
     public OnShoppingListEdit onShoppingListEdit;
-   // public SendSMS sendSMS;
+    private ActivityListener mActivityListener;
     private RecyclerView mRecyclerView;
-    public ShoppingListRecyclerAdapter mAdapter;
+    private ShoppingListRecyclerAdapter mAdapter;
 
-    public static ShoppingListsFragment getInstance (String aaa,Intent intent){
+    public static ShoppingListsFragment getInstance (Intent intent){
         ShoppingListsFragment fragment = new ShoppingListsFragment();
-        //intent.putExtra(KEA_AAA, aaa);
         return fragment;
     }
-
 
     @Nullable
     @Override
@@ -50,14 +46,11 @@ public class ShoppingListsFragment extends Fragment  {
 
         // прописываем layout фрагмента
         View view = inflater.inflate(R.layout.shopping_list_fragment, container, false);
-
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_shopping_list); //отображает все шопинг листы
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-       // mRecyclerView.getAdapter().
         List<ShoppingList> values = DataManager.getShoppingLists();
-        mAdapter = new ShoppingListRecyclerAdapter(getContext(), values);
+        mAdapter = new ShoppingListRecyclerAdapter(this, getContext(), values);
         mAdapter.onShoppingListEdit = onShoppingListEdit;
-
         mRecyclerView.setAdapter(mAdapter);
         return view;
     }
@@ -83,8 +76,7 @@ public class ShoppingListsFragment extends Fragment  {
     @Override
     public void onResume() {
         super.onResume();
-
-        if(mActivityListener!=null) {mActivityListener.setTitle("Hello");}
+       // if(mActivityListener!=null) {mActivityListener.setTitle("Hello");}
     }
 
     @Override
@@ -110,14 +102,10 @@ public class ShoppingListsFragment extends Fragment  {
     }
 
 
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-
-        inflater.inflate(R.menu.menu, menu);
-
-
+        inflater.inflate(R.menu.menu, menu); // устанавливаем верхнее меню
     }
 
     @Override
@@ -131,9 +119,8 @@ public class ShoppingListsFragment extends Fragment  {
             case R.id.my_action:
                 DataManager.createShoppingList();
                 mAdapter.notifyDataSetChanged();
-
                 Log.d("ShoppingList", "onOptionsItemSelected"); //TODO проверить работу кнопок в каждом фрагменте
-                break;
+            break;
             case R.id.my_action1:
 
                // ShoppingListsEditFragment fragment  = ShoppingListsEditFragment.getInstance("djkgfhsg",getActivity().getIntent());
@@ -148,15 +135,16 @@ public class ShoppingListsFragment extends Fragment  {
 
         }
         return super.onOptionsItemSelected(item);
-
-
     }
 
+    @Override
+    public void onItemChecked(int position) {
 
-
-    public void setTitle(String title) {// TODO можно вставить название списка
-
+        LinearLayoutManager layoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+        int childIndex = position - layoutManager.findFirstVisibleItemPosition();
+        TextView tv = (TextView)mRecyclerView.getChildAt(childIndex).findViewById(R.id.total_checked);
+        ShoppingListRecyclerAdapter adapter = (ShoppingListRecyclerAdapter) mRecyclerView.getAdapter();
+        LinearLayout layout = (LinearLayout) mRecyclerView.getChildAt(childIndex).findViewById(R.id.linear_layout_shopping_list);
+        adapter.RefreshTotalChecked(tv,layout, position);
     }
-
-
 }

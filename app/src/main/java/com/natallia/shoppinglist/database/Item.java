@@ -3,15 +3,15 @@ package com.natallia.shoppinglist.database;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-/**
- * Created by Administrator on 20.12.15.
- */
+
 public class Item  extends RealmObject{
 
     @PrimaryKey
     private int id;
     private String name;
     private Category category;
+
+
 
     public String getName() {
         return name;

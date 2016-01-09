@@ -1,11 +1,9 @@
 package com.natallia.shoppinglist.fragments;
 
 import android.app.Activity;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,20 +11,19 @@ import android.provider.ContactsContract;
 import android.speech.RecognizerIntent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.telephony.SmsManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.natallia.shoppinglist.R;
 import com.natallia.shoppinglist.UI.ActivityListener;
 import com.natallia.shoppinglist.UI.OnShoppingListEdit;
+import com.natallia.shoppinglist.database.Item;
 
 import java.util.ArrayList;
 
@@ -46,7 +43,7 @@ public class SendSMSFragment extends Fragment {
     private String mSmsText;
 
 
-    public static SendSMSFragment getInstance(String aaa, Intent intent) {
+    public static SendSMSFragment getInstance( Intent intent) {
         SendSMSFragment fragment = new SendSMSFragment();
         fragment.mSmsText = intent.getStringExtra("SMSText");
         return fragment;
@@ -80,13 +77,16 @@ public class SendSMSFragment extends Fragment {
             public void onClick(View v) {
                 String phoneNo = txtPhoneNumber.getText().toString();
                 String message = txtSMS.getText().toString();
+                // пока убираем проверку
+                sendSMS(phoneNo, message);
+                /*
                 if (phoneNo.length() > 0 && message.length() > 0)
-
                     sendSMS(phoneNo, message);
                 else
                     Toast.makeText(getContext(),
                             "Please enter both phone number and message.",
                             Toast.LENGTH_SHORT).show();
+                */
 
             }
         });
@@ -147,6 +147,7 @@ public class SendSMSFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        //inflater.inflate(R.menu.menu, menu);
 
         inflater.inflate(R.menu.menu, menu);
 
@@ -159,19 +160,27 @@ public class SendSMSFragment extends Fragment {
 
 
     private void sendSMS(String phoneNumber, String message) {
-/*
+
+        // пока такой вариант отправки смс
         Intent smsIntent = new Intent(Intent.ACTION_VIEW);
         smsIntent.setType("vnd.android-dir/mms-sms");
         smsIntent.putExtra("sms_body", message);
+        smsIntent.putExtra("address",phoneNumber);
         startActivity(smsIntent);
-*/
 
 
-        Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+/*  добавление через voice
+
+
+ */
+
+ /*       Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         speechIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak please");
         startActivityForResult(speechIntent, RESULT_SPEECH_TO_TEXT);
+ */
+
         /*
         PendingIntent pi;
         pi = PendingIntent.getActivity(getContext(), 0,
@@ -245,7 +254,7 @@ public class SendSMSFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // Check which request it is that we're responding to
+
         if (requestCode == RESULT_SPEECH_TO_TEXT && resultCode == Activity.RESULT_OK) {
             ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             txtSMS.setText(matches.get(0));
@@ -272,7 +281,7 @@ public class SendSMSFragment extends Fragment {
                 String number = cursor.getString(column);
 
                 txtPhoneNumber.setText(number);
-                // Do something with the phone number...
+
             }
         }
     }

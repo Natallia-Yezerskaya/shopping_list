@@ -4,15 +4,16 @@
 
     <item
         android:id="@+id/send_sms"
-        android:icon="@android:drawable/btn_star"
+        android:icon="@android:drawable/sym_action_email"
         android:orderInCategory="100"
         android:title="SMS"
-        app:showAsAction="always"/>
+        app:showAsAction="always"
+        android:visible="false"/>
 
     <item
 
         android:id="@+id/my_action"
-        android:icon="@android:drawable/btn_plus"
+        android:icon="@android:drawable/ic_input_add"
         android:orderInCategory="100"
         android:title="My action"
         app:showAsAction="always"/>
@@ -20,7 +21,7 @@
     <item
 
         android:id="@+id/my_action1"
-        android:icon="@android:drawable/btn_minus"
+        android:icon="@android:drawable/ic_input_delete"
         android:orderInCategory="100"
         android:title="My action"
         app:showAsAction="always"/>

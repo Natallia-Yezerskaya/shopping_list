@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ListView;
@@ -21,8 +20,6 @@ import com.natallia.shoppinglist.UI.MaterialMenuDrawable;
 import com.natallia.shoppinglist.UI.OnShoppingListEdit;
 import com.natallia.shoppinglist.UI.SendSMS;
 import com.natallia.shoppinglist.database.DataManager;
-import com.natallia.shoppinglist.database.ShoppingList;
-import com.natallia.shoppinglist.fragments.CategoryListFragment;
 import com.natallia.shoppinglist.fragments.SendSMSFragment;
 import com.natallia.shoppinglist.fragments.ShoppingListsEditFragment;
 import com.natallia.shoppinglist.fragments.ShoppingListsFragment;
@@ -48,24 +45,19 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         initToolbar();
-
         dataManager = new DataManager(this);
         DataManager.InitializeData();
-        if (savedInstanceState == null) {
-
+        if (savedInstanceState == null) {  // открываем фрагмент со списком всех листов
             tr = getSupportFragmentManager().beginTransaction();
-
-            ShoppingListsFragment fragment = ShoppingListsFragment.getInstance("djkgfhsg", getIntent());
+            ShoppingListsFragment fragment = ShoppingListsFragment.getInstance(getIntent());
             fragment.onShoppingListEdit = this;
-            tr.replace(R.id.container, fragment, "First");
+            tr.replace(R.id.container, fragment);
             tr.commit();
         }
     }
 
-
+/*
     private void showStatus(String txt) {
         Log.i(TAG, txt);
         TextView tv = new TextView(this);
@@ -73,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
 
         //rootLayout.addView(tv);
     }
-
+*/
 
 
     private void initToolbar(){
@@ -201,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
     @Override
     public void changeFragment(Fragment fragment) {
         tr = getSupportFragmentManager().beginTransaction();
-        tr.replace(R.id.container, fragment, "Edit");
+        tr.replace(R.id.container, fragment);
         tr.addToBackStack(null);
         tr.commit();
     }
@@ -212,10 +204,11 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
     }
 
 
+    // открываем фрагмент редактирования shopping list
     public void openEditShoppingListFragment(int shoppingListId){
         Intent intent = getIntent();
         intent.putExtra("ShoppingListId",shoppingListId);
-        ShoppingListsEditFragment fragment  = ShoppingListsEditFragment.getInstance("djkgfhsg", intent);
+        ShoppingListsEditFragment fragment  = ShoppingListsEditFragment.getInstance(intent);
         fragment.sendSMS = this;
         changeFragment(fragment);
     }
@@ -229,7 +222,6 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
     @Override
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
-       //outState.putInt("ShoppingListId");
     }
 
     @Override
@@ -242,10 +234,11 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
         openSendSMSFragment(smsText);
     }
 
+    //открываем фрагмент отправки смс
     public void openSendSMSFragment(String smsText){
         Intent intent = getIntent();
         intent.putExtra("SMSText",smsText);
-        SendSMSFragment fragment  = SendSMSFragment.getInstance("djkgfhsg", intent);
+        SendSMSFragment fragment  = SendSMSFragment.getInstance(intent);
         changeFragment(fragment);
     }
 }

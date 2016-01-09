@@ -13,18 +13,15 @@ public class Category extends RealmObject{
 
     // TODO добавить цвет категории
 
-
     public int getId() {
         return id;
     }
-
     public String getName() {
         return name;
     }
     public void setName(String name) {
         this.name = name;
     }
-
     public void setId(int id) {
         this.id = id;
     }

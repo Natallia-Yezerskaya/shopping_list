@@ -3,8 +3,6 @@ package com.natallia.shoppinglist.database;
 import android.app.Activity;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import io.realm.Realm;
@@ -12,16 +10,13 @@ import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
-/**
- * Created by Natallia on 22.12.2015.
+/*
+класс для получения данных из базы (в данном случае из realm)
  */
 public class DataManager {
 
     public static final String TAG = DataManager.class.getName();
-
     private Activity activity;
-
-
     public static Realm realm;
 
     public DataManager(Activity activity) {
@@ -40,11 +35,6 @@ public class DataManager {
         final RealmResults<ShoppingList> results = realm.where(ShoppingList.class).findAllSorted("id", Sort.DESCENDING);
         return results;
     }
-    public static List<ShoppingListItem> getShoppingListItems(ShoppingList shoppingList) {
-
-
-        return  shoppingList.getItems();
-    }
 
     public static void setNameShoppingList(ShoppingList shoppingList, String name) {
         realm.beginTransaction();
@@ -56,12 +46,12 @@ public class DataManager {
         item.setName(name);
         realm.commitTransaction();
     }
-    public static void setExpanded(ShoppingList shoppingList, boolean expanded) {
+
+    public static void setAmountShoppingListItem(ShoppingListItem shoppingListItem, Float amount) {
         realm.beginTransaction();
-        shoppingList.setExpanded(expanded);
+        shoppingListItem.setAmount(amount);
         realm.commitTransaction();
     }
-
     public static ShoppingList getShoppingListById(int id){
 
         ShoppingList shoppingList = realm.where(ShoppingList.class).equalTo("id",id).findFirst();
@@ -75,32 +65,11 @@ public class DataManager {
     }
 
     public static void  deleteCategory(Category category) {
-
         realm.beginTransaction();
         category.removeFromRealm();
         realm.commitTransaction();
     }
 
-    public static void  deleteShoppingList(ShoppingList shoppingList) {
-
-        realm.beginTransaction();
-        shoppingList.removeFromRealm();
-        realm.commitTransaction();
-    }
-
-    public static boolean  shoppingListIsChecked(ShoppingList shoppingList) {
-
-       // realm.beginTransaction();
-       Long count = shoppingList.getItems().where().equalTo("checked",false).count();
-       // realm.commitTransaction();
-        if (count == 0){
-            return true;
-        }
-        else {
-            return false;
-        }
-
-    }
     public static void  deleteShoppingListItem(ShoppingListItem shoppingListItem) {
 
         realm.beginTransaction();
@@ -108,7 +77,27 @@ public class DataManager {
         realm.commitTransaction();
     }
 
-       public static int getNextId(Class<? extends RealmObject> clazz) {
+    public static void  deleteShoppingList(ShoppingList shoppingList) {
+        realm.beginTransaction();
+        shoppingList.removeFromRealm();
+        realm.commitTransaction();
+    }
+
+    public static boolean  shoppingListIsChecked(ShoppingList shoppingList) {
+       Long count = shoppingList.getItems().where().equalTo("checked",false).count();
+        if (count == 0){
+            return true;
+        }
+        else {
+            return false;}
+    }
+
+    public static int  shoppingListGetChecked(ShoppingList shoppingList) {
+        Long count = shoppingList.getItems().where().equalTo("checked",true).count();
+        return count.intValue();
+    }
+
+    public static int getNextId(Class<? extends RealmObject> clazz) {
         final Number currentMaxId = realm.where(clazz).max("id");
         if (currentMaxId == null) {
             return 1;
@@ -116,34 +105,38 @@ public class DataManager {
         return currentMaxId.intValue() + 1;
     }
 
+    public static int getNextPositionOfShoppingListItem(ShoppingList shoppingList) {
+        final Number currentMaxPosition = shoppingList.getItems().where().max("position");
+        if (currentMaxPosition == null) {
+            return 1;
+        }
+        return currentMaxPosition.intValue() + 1;
+    }
+
+    // первоначальное заполнение базы
     public static ShoppingList createShoppingList() {
         realm.beginTransaction();
         ShoppingList shoppingList = realm.createObject(ShoppingList.class);
         shoppingList.setId(getNextId(ShoppingList.class));
         shoppingList.setName("Продукты");
-       // shoppingList.getItems().add(realm.where(ShoppingListItem.class).findFirst());
         shoppingList.setExpanded(true);
-
         realm.commitTransaction();
         return shoppingList;
     }
 
-    public static ShoppingListItem createShoppingListItem(ShoppingList shoppingList) { //TODO дописать
+    public static ShoppingListItem createShoppingListItem(ShoppingList shoppingList) {
         realm.beginTransaction();
-
         Item item = realm.createObject(Item.class);
         item.setId(getNextId(Item.class));
-        //shoppingList.getItems().add(item)
-        //item.setCategory("Продукты");
-        // shoppingList.getItems().add(realm.where(ShoppingListItem.class).findFirst());
         shoppingList.setExpanded(true);
 
         ShoppingListItem shoppingListItem = realm.createObject(ShoppingListItem.class);
         shoppingListItem.setId(getNextId(ShoppingListItem.class));
-        shoppingListItem.setPosition(1);
+
+        shoppingListItem.setPosition(getNextPositionOfShoppingListItem(shoppingList));
         shoppingListItem.setItem(item);
         shoppingListItem.setChecked(false);
-        shoppingListItem.setCount(1f);
+        shoppingListItem.setAmount(1f);
         shoppingList.getItems().add(shoppingListItem);
 
         realm.commitTransaction();
@@ -168,11 +161,8 @@ public class DataManager {
             category.setName("Бытовая химия");
 
            // TODO перенести в стринги
-
-
             category = realm.where(Category.class).findFirst();
             Log.d(TAG, category.getName());
-            // When the transaction is committed, all changes a synced to disk.
         }
 
 // создаем пару элементов
@@ -183,8 +173,7 @@ public class DataManager {
             Item item = realm.createObject(Item.class);
             item.setId(getNextId(Item.class));
             item.setName("Молоко");
-            item.setCategory(category);   // TODO перенести в стринги
-
+            item.setCategory(category);
 
             item = realm.createObject(Item.class);
             item.setId(getNextId(Item.class));
@@ -208,21 +197,21 @@ public class DataManager {
             shoppingListItem.setPosition(1);
             shoppingListItem.setItem(item);
             shoppingListItem.setChecked(false);
-            shoppingListItem.setCount(1f);
+            shoppingListItem.setAmount(1f);
 
             shoppingListItem = realm.createObject(ShoppingListItem.class);
             shoppingListItem.setId(getNextId(ShoppingListItem.class));
             shoppingListItem.setPosition(2);
             shoppingListItem.setItem(realm.where(Item.class).equalTo("name", "Капуста").findFirst());
             shoppingListItem.setChecked(false);
-            shoppingListItem.setCount(1f);
+            shoppingListItem.setAmount(1f);
 
             shoppingListItem = realm.createObject(ShoppingListItem.class);
             shoppingListItem.setId(getNextId(ShoppingListItem.class));
             shoppingListItem.setPosition(3);
             shoppingListItem.setItem(realm.where(Item.class).equalTo("name", "Сметана").findFirst());
             shoppingListItem.setChecked(false);
-            shoppingListItem.setCount(1f);
+            shoppingListItem.setAmount(1f);
 
         }
         if (realm.allObjects(ShoppingList.class).size() == 0) {
@@ -240,31 +229,9 @@ public class DataManager {
             shoppingList.setName("Продукты");
             shoppingList.getItems().add(realm.where(ShoppingListItem.class).findFirst());
             shoppingList.setExpanded(true);
-
         }
-
-
-
-
-        realm.commitTransaction();
-       /*
-        // Find the first person (no query conditions) and read a field
-        person = realm.where(Person.class).findFirst();
-        showStatus(person.getName() + ":" + person.getAge());
-
-        // Update person in a transaction
-        realm.beginTransaction();
-        person.setName("Senior Person");
-        person.setAge(99);
-        showStatus(person.getName() + " got older: " + person.getAge());
         realm.commitTransaction();
 
-        // Delete all persons
-        realm.beginTransaction();
-        realm.allObjects(Person.class).clear();
-        realm.commitTransaction();
-
-        */
     }
 
     public static void toggleChecked(ShoppingListItem shoppingListItem) {
@@ -282,14 +249,17 @@ public class DataManager {
 
         realm.beginTransaction();
 
-        final ShoppingListItem from = shoppingListItems.get(fromPosition);
-        final ShoppingListItem to = shoppingListItems.get(toPosition);
-        shoppingListItems.remove(from);
-        shoppingListItems.add(shoppingListItems.indexOf(to), from);
-        shoppingListItems.remove(to);
-        shoppingListItems.add(fromPosition, to);
+        ShoppingListItem from = shoppingListItems.get(fromPosition);
+        ShoppingListItem to = shoppingListItems.get(toPosition);
+
+        int temp = from.getPosition();
+        from.setPosition(to.getPosition());
+        to.setPosition(temp);
+       // shoppingListItems.remove(from);
+       // shoppingListItems.add(shoppingListItems.indexOf(to), from);
+        //shoppingListItems.remove(to);
+        //shoppingListItems.add(fromPosition, to);
         //Collections.swap(shoppingListItems, fromPosition, toPosition);
         realm.commitTransaction();
     }
-
 }

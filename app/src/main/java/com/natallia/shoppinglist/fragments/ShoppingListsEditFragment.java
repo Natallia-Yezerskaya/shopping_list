@@ -15,14 +15,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.natallia.shoppinglist.R;
 import com.natallia.shoppinglist.UI.ActivityListener;
 import com.natallia.shoppinglist.UI.SendSMS;
 import com.natallia.shoppinglist.adapters.ShoppingListItemRecyclerAdapter;
+import com.natallia.shoppinglist.adapters.ShoppingListRecyclerAdapter;
 import com.natallia.shoppinglist.database.DataManager;
 import com.natallia.shoppinglist.database.ShoppingList;
 import com.natallia.shoppinglist.database.ShoppingListItem;
@@ -32,7 +33,6 @@ import com.natallia.shoppinglist.helper.SimpleItemTouchHelperCallback;
 
 import java.util.List;
 
-import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.Sort;
 
@@ -40,15 +40,16 @@ import io.realm.Sort;
 public class ShoppingListsEditFragment extends Fragment implements OnStartDragListener {
 
     private int mShoppingListId;
+    private ShoppingList mShoppingList;
     public SendSMS sendSMS;
 
 
     private ActivityListener mActivityListener;
     private View mItemLayout;
-    private TextView mTextView;
+    private EditText mEditText;
     private RecyclerView mRecyclerView;
-    private Button mButton_add;
-    private RecyclerView.Adapter mAdapter;
+  // private Button mButton_add;
+    private ShoppingListItemRecyclerAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     private ItemTouchHelper mItemTouchHelper;
@@ -59,7 +60,7 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
     }
 
 
-    public static ShoppingListsEditFragment getInstance (String aaa,Intent intent){
+    public static ShoppingListsEditFragment getInstance (Intent intent){
         ShoppingListsEditFragment fragment = new ShoppingListsEditFragment();
         fragment.mShoppingListId = intent.getIntExtra("ShoppingListId",0);
         return fragment;
@@ -77,11 +78,16 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
         if (mShoppingListId == 0){
             mShoppingListId = savedInstanceState.getInt("ShoppingListId",0);
         }
-        final  ShoppingList mShoppingList = DataManager.getShoppingListById(mShoppingListId);
+       mShoppingList = DataManager.getShoppingListById(mShoppingListId);
 
-        mTextView = (TextView) view.findViewById(R.id.tv_shopping_list_name);
-        mTextView.setText(mShoppingList.getName());
-        mButton_add = (Button) view.findViewById(R.id.btn_add);
+        mEditText = (EditText) view.findViewById(R.id.ed_shopping_list_name);
+        mEditText.setText(mShoppingList.getName());
+        mEditText.clearFocus();
+        mEditText.setEnabled(false);
+        mEditText.setCursorVisible(false);
+
+        //TODO Удалить!
+       /* mButton_add = (Button) view.findViewById(R.id.btn_add);
         mButton_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,16 +96,14 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
 
             }
         });
+        */
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_edit_items); //отображает все шопинг листы
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));//TODO
-
-      // int id = getActivity().getIntent().getIntExtra("ShoppingListId",0);
-
-        List<ShoppingListItem> values = mShoppingList.getItems().where().findAllSorted("id", Sort.DESCENDING);
-        mAdapter = new ShoppingListItemRecyclerAdapter(values,true,this, mItemLayout);
+        List<ShoppingListItem> values = mShoppingList.getItems().where().findAllSorted("position", Sort.DESCENDING);
+        mAdapter = new ShoppingListItemRecyclerAdapter(values,true,this, mItemLayout, null, 0, getContext());
+        mRecyclerView.setItemAnimator(null); // // TODO: убрана анимация item
         mRecyclerView.setAdapter(mAdapter);
-
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback((ItemTouchHelperAdapter) mAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
@@ -154,6 +158,8 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu, menu);
+        MenuItem iconSendSMS = menu.findItem(R.id.send_sms);
+        iconSendSMS.setVisible(true);
     }//TODO разобраться с меню
 
     @Override
@@ -165,15 +171,18 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.my_action:
-               // DataManager.createShoppingList();
-                //mAdapter.notifyDataSetChanged();
 
-                Log.d("editFragment", "onOptionsItemSelected"); //TODO проверить работу кнопок в каждом фрагменте
+                DataManager.createShoppingListItem(mShoppingList);
+                mAdapter.notifyDataSetChanged();
+                mRecyclerView.smoothScrollToPosition(0);
+
+                Log.d("editFragment", "onOptionsItemSelected");
                 break;
             case R.id.my_action1:
                 DataManager.deleteShoppingList(DataManager.getShoppingListById(mShoppingListId));
                 mAdapter.notifyDataSetChanged();
                 getActivity().onBackPressed();
+                // TODO вызвать диалог с подтверждением удаления
                 Log.d("editFragment", "onOptionsItemSelectedShoppingList"); //TODO проверить работу кнопок в каждом фрагменте
                 break;
             case R.id.send_sms:
@@ -200,7 +209,5 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
         super.onSaveInstanceState(outState);
         outState.putInt("ShoppingListId",mShoppingListId);
     }
-
-
 
 }
