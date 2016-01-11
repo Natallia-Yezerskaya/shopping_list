@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:id="@+id/ed_shopping_list_name"
@@ -16,7 +16,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/rv_edit_items"
-        android:background="@color/editFragmentBackground">
+        android:background="@color/editFragmentBackground"
+        >
 
     </android.support.v7.widget.RecyclerView>
 

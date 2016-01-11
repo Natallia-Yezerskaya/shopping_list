@@ -3,6 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/voice_add"
+        android:icon="@android:drawable/ic_media_next"
+        android:orderInCategory="100"
+        android:title="Add"
+        app:showAsAction="always"
+        android:visible="false"/>
+
+    <item
         android:id="@+id/send_sms"
         android:icon="@android:drawable/sym_action_email"
         android:orderInCategory="100"
@@ -12,18 +20,18 @@
 
     <item
 
-        android:id="@+id/my_action"
+        android:id="@+id/add"
         android:icon="@android:drawable/ic_input_add"
         android:orderInCategory="100"
-        android:title="My action"
+        android:title="Add item"
         app:showAsAction="always"/>
 
     <item
 
-        android:id="@+id/my_action1"
+        android:id="@+id/delete"
         android:icon="@android:drawable/ic_input_delete"
         android:orderInCategory="100"
-        android:title="My action"
+        android:title="Delete shopping list"
         app:showAsAction="always"/>
 
 

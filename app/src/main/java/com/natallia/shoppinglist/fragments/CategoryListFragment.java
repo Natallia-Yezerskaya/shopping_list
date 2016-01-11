@@ -172,7 +172,7 @@ public class CategoryListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.my_action:
+            case R.id.add:
 
                 Log.d("Category", "onOptionsItemSelected");
                 break;

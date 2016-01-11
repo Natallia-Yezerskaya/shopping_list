@@ -3,6 +3,8 @@ package com.natallia.shoppinglist.database;
 import android.app.Activity;
 import android.util.Log;
 
+import com.natallia.shoppinglist.R;
+
 import java.util.List;
 
 import io.realm.Realm;
@@ -16,7 +18,7 @@ import io.realm.Sort;
 public class DataManager {
 
     public static final String TAG = DataManager.class.getName();
-    private Activity activity;
+    public Activity activity;
     public static Realm realm;
 
     public DataManager(Activity activity) {
@@ -118,7 +120,7 @@ public class DataManager {
         realm.beginTransaction();
         ShoppingList shoppingList = realm.createObject(ShoppingList.class);
         shoppingList.setId(getNextId(ShoppingList.class));
-        shoppingList.setName("Продукты");
+        shoppingList.setName("Новый список");
         shoppingList.setExpanded(true);
         realm.commitTransaction();
         return shoppingList;

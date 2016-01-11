@@ -1,5 +1,6 @@
 package com.natallia.shoppinglist;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -12,6 +13,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -48,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
         initToolbar();
         dataManager = new DataManager(this);
         DataManager.InitializeData();
+
         if (savedInstanceState == null) {  // открываем фрагмент со списком всех листов
             tr = getSupportFragmentManager().beginTransaction();
             ShoppingListsFragment fragment = ShoppingListsFragment.getInstance(getIntent());
@@ -55,18 +60,7 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
             tr.replace(R.id.container, fragment);
             tr.commit();
         }
-    }
-
-/*
-    private void showStatus(String txt) {
-        Log.i(TAG, txt);
-        TextView tv = new TextView(this);
-        tv.setText(txt);
-
-        //rootLayout.addView(tv);
-    }
-*/
-
+ }
 
     private void initToolbar(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -193,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
     @Override
     public void changeFragment(Fragment fragment) {
         tr = getSupportFragmentManager().beginTransaction();
+        tr.setCustomAnimations(R.anim.slide_left_in,R.anim.slide_left_out,R.anim.slide_right_in,R.anim.slide_right_out);
         tr.replace(R.id.container, fragment);
         tr.addToBackStack(null);
         tr.commit();
@@ -241,4 +236,5 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
         SendSMSFragment fragment  = SendSMSFragment.getInstance(intent);
         changeFragment(fragment);
     }
+
 }

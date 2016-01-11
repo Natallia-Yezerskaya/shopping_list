@@ -2,16 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/itemListBackground"
+        android:background="@drawable/rectangle_rounded_some"
         android:id="@+id/linear_layout_shopping_list">
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="3"
             android:orientation="vertical">
 
              <EditText
@@ -21,7 +23,6 @@
                 android:text="new Shopping list"
                 android:textColor="@android:color/black"
                 android:textSize="20dp"
-                android:layout_weight="3"
                 android:singleLine="true" />
             <TextView
                 android:layout_width="match_parent"
@@ -32,13 +33,13 @@
 
         </LinearLayout>
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Развернуть"
             android:id="@+id/btn_shopping_list_expand"
             android:layout_weight="1"/>
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Edit"
             android:id="@+id/btn_edit"
@@ -49,7 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/rv_shopping_list_items"
-        android:background="@color/rvItemsBackground"
+        android:background="@drawable/rectangle_rounded_some_layout"
         >
 
     </android.support.v7.widget.RecyclerView>

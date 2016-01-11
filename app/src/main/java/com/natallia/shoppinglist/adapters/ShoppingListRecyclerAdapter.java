@@ -1,10 +1,14 @@
 package com.natallia.shoppinglist.adapters;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,9 +80,12 @@ public class ShoppingListRecyclerAdapter extends RecyclerView.Adapter<ShoppingLi
         totalCheckedTextView.setText(text);
         boolean shoppingListIsChecked = DataManager.shoppingListIsChecked(shoppingList);
         if (shoppingListIsChecked){
-            layout.setBackgroundColor(context.getResources().getColor(R.color.itemListBackgroundChecked));
+            layout.getBackground().setColorFilter(context.getResources().getColor(R.color.itemListBackgroundChecked), PorterDuff.Mode.MULTIPLY);
+            //layout.setBackgroundColor(context.getResources().getColor(R.color.itemListBackgroundChecked));
         } else {
-            layout.setBackgroundColor(context.getResources().getColor(R.color.itemListBackground));
+            layout.getBackground().setColorFilter(context.getResources().getColor(R.color.itemListBackground), PorterDuff.Mode.MULTIPLY);
+
+            //layout.setBackgroundColor(context.getResources().getColor(R.color.itemListBackground));
         }
     }
 
@@ -86,7 +93,7 @@ public class ShoppingListRecyclerAdapter extends RecyclerView.Adapter<ShoppingLi
     @Override
     public ShoppingListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // создаем новый view
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.shopping_list_element,parent,false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.shopping_list_element, parent, false);
         return new ShoppingListHolder(v);
     }
 
@@ -121,6 +128,7 @@ public class ShoppingListRecyclerAdapter extends RecyclerView.Adapter<ShoppingLi
         holder.mButton_edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //DataManager.createShoppingListItem(shoppingList);
 
                 onShoppingListEdit.onShoppingListEdit(shoppingList.getId());
             }
@@ -137,15 +145,27 @@ public class ShoppingListRecyclerAdapter extends RecyclerView.Adapter<ShoppingLi
 
         //holder.mRecyclerView.setMinimumHeight();
 
+        DisplayMetrics metrics;
+        metrics = new DisplayMetrics();
+        // getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        //int height = getDPI(64* values.size(), metrics);
+        Resources r = context.getResources();
+        int height = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, r.getDisplayMetrics());
+
         if (shoppingList.isExpanded()) {
-            params.height = 170 * values.size();//TODO придумать решение
+            //params.height = (64* values.size());//TODO придумать решение
+            params.height = height * values.size();
         } else {
             params.height = 0;
         }
 
         holder.mRecyclerView.setLayoutParams(params);
-        ShoppingListItemRecyclerAdapter adapter = new ShoppingListItemRecyclerAdapter(values,false,this,holder.mItemLayout, mShoppingListItemAdapterCallback,position,context);
+        ShoppingListItemRecyclerAdapter adapter = new ShoppingListItemRecyclerAdapter(values,false,this,holder.mItemLayout, mShoppingListItemAdapterCallback,position,context,null);
         holder.mRecyclerView.setAdapter(adapter);
     }
 
+    public static int getDPI(int size, DisplayMetrics metrics){
+        return (size * metrics.densityDpi) / DisplayMetrics.DENSITY_DEFAULT;
+    }
 }

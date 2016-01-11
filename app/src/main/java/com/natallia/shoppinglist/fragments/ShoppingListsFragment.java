@@ -116,12 +116,14 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListItemA
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.my_action:
-                DataManager.createShoppingList();
+            case R.id.add:
+                ShoppingList shoppingList = DataManager.createShoppingList();
                 mAdapter.notifyDataSetChanged();
+                DataManager.createShoppingListItem(shoppingList);
+                onShoppingListEdit.onShoppingListEdit(shoppingList.getId());
                 Log.d("ShoppingList", "onOptionsItemSelected"); //TODO проверить работу кнопок в каждом фрагменте
             break;
-            case R.id.my_action1:
+            case R.id.delete:
 
                // ShoppingListsEditFragment fragment  = ShoppingListsEditFragment.getInstance("djkgfhsg",getActivity().getIntent());
                // mActivityListener.changeFragment(fragment);

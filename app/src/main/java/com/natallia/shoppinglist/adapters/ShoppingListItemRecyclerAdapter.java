@@ -5,18 +5,23 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 
+import com.natallia.shoppinglist.MainActivity;
 import com.natallia.shoppinglist.R;
 import com.natallia.shoppinglist.UI.ShoppingListItemAdapterCallback;
 import com.natallia.shoppinglist.database.DataManager;
@@ -40,8 +45,12 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
     private ShoppingListItemAdapterCallback mShoppingListItemAdapterCallback;
     private int mShoppingListPosition;
     private Context mContext;
+    private Activity mActivity;
+    private TextView.OnEditorActionListener onEditorActionListener;
 
-
+    public void setOnEditorActionListener(TextView.OnEditorActionListener onEditorActionListener) {
+        this.onEditorActionListener = onEditorActionListener;
+    }
 
     //будет хранить данные одного item
     public class ShoppingListItemHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder{
@@ -84,12 +93,14 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
         public void onItemClear() {
             itemView.setBackgroundColor(mColorBackground);
         }
+
+
     }
 
 
 
     // конструктор
-    public ShoppingListItemRecyclerAdapter(List<ShoppingListItem> shoppingListItems, boolean editMode, OnStartDragListener dragStartListener, View mItemLayout, ShoppingListItemAdapterCallback mShoppingListItemAdapterCallback, int position, Context context) {
+    public ShoppingListItemRecyclerAdapter(List<ShoppingListItem> shoppingListItems, boolean editMode, OnStartDragListener dragStartListener, View mItemLayout, ShoppingListItemAdapterCallback mShoppingListItemAdapterCallback, int position, Context context,Activity activity) {
 
         this.shoppingListItems = shoppingListItems;
         this.editMode = editMode;
@@ -98,6 +109,7 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
         this.mShoppingListItemAdapterCallback = mShoppingListItemAdapterCallback;
         this.mShoppingListPosition = position;
         this.mContext = context;
+        this.mActivity = activity;
     }
 
     @Override
@@ -121,16 +133,23 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
         final ShoppingListItem shoppingListItem = shoppingListItems.get(position);
         final Item item = shoppingListItem.getItem();
         if (editMode && position == 0 && shoppingListItems.get(position).getItem().getName() == null) {
-            holder.mTextView_name.requestFocus();
-           //TODO не работает клавиатура
-            InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(holder.mTextView_name, InputMethodManager.SHOW_IMPLICIT);
+            final InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            holder.mTextView_name.post(new Runnable() {
+                @Override
+                public void run() {
+                    holder.mTextView_name.requestFocus();
+                    imm.showSoftInput(holder.mTextView_name, 0);
+                }
+            });
+
         }
 
         if (shoppingListItem.isChecked()) {
-            holder.mItemView.setBackgroundColor(holder.mItemView.getResources().getColor(R.color.itemBackgroundChecked));
+            //holder.mItemView.setBackgroundColor(holder.mItemView.getResources().getColor(R.color.itemBackgroundChecked));
+            holder.mItemView.getBackground().setColorFilter(holder.mItemView.getResources().getColor(R.color.itemBackgroundChecked),PorterDuff.Mode.MULTIPLY);
         }else {
-            holder.mItemView.setBackgroundColor(holder.mItemView.getResources().getColor(R.color.itemBackground));
+            //holder.mItemView.setBackgroundColor(holder.mItemView.getResources().getColor(R.color.itemBackground));
+            holder.mItemView.getBackground().setColorFilter(holder.mItemView.getResources().getColor(R.color.itemBackground), PorterDuff.Mode.MULTIPLY);
         }
         holder.mTextView_name.setText(item.getName());
         if (shoppingListItem.isChecked()) {
@@ -146,7 +165,7 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
                 //notifyDataSetChanged();
             }
         });
-
+        holder.mTextView_name.setOnEditorActionListener(onEditorActionListener);
 
 
         holder.mNumberPicker.setText(String.valueOf(shoppingListItem.getAmount()));
