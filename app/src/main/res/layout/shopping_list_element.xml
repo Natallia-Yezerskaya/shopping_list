@@ -3,23 +3,32 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="3dp">
+    android:layout_marginBottom="5dp"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:background="@drawable/rectangle_rounded_some"
         android:id="@+id/linear_layout_shopping_list">
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/btn_favorite"
+            android:background="@drawable/ic_action_favorite_out"/>
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:id="@+id/ll_shopping_list_name">
 
-             <EditText
+             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/et_shopping_list_name"
+                android:layout_height="match_parent"
+                android:id="@+id/tv_shopping_list_name"
                 android:text="new Shopping list"
                 android:textColor="@android:color/black"
                 android:textSize="20dp"
@@ -32,18 +41,12 @@
                 android:textColor="@color/primaryFont"/>
 
         </LinearLayout>
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Развернуть"
-            android:id="@+id/btn_shopping_list_expand"
-            android:layout_weight="1"/>
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Edit"
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:id="@+id/btn_edit"
-            android:layout_weight="1"/>
+            android:background="@drawable/ic_editor_mode_edit"/>
 
     </LinearLayout>
     <android.support.v7.widget.RecyclerView

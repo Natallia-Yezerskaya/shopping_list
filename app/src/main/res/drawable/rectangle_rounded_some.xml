@@ -3,11 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape>
-            <solid android:color="@color/itemListBackground"/>
+            <solid android:color="@android:color/white"/>
             <corners android:bottomRightRadius="0.1dp"
                 android:bottomLeftRadius="0.1dp"
-                android:topLeftRadius="8dip"
-                android:topRightRadius="8dip"/>
+                android:topLeftRadius="20dp"
+                android:topRightRadius="20dp"/>
         </shape>
     </item>
 </selector>

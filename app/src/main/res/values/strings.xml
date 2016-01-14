@@ -13,7 +13,9 @@
     <string name="dialog_rename_shopping_list_name">Название списка</string>
     <string name="dialog_save">Сохранить</string>
     <string name="dialog_cancel">Отменить</string>
+    <string name="dialog_select">Выбрать</string>
     <string name="new_shopping_list_name">Новый список</string>
-
+    <string name="dialog_select_favorites">Выберите списки</string>
+    <string name="dialog_delete_title">Удалить список?</string>
 
 </resources>

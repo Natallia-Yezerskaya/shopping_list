@@ -1,12 +1,17 @@
 package com.natallia.shoppinglist.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.annotation.Nullable;
+
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,14 +25,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.natallia.shoppinglist.MainActivity;
 
 import com.natallia.shoppinglist.R;
 import com.natallia.shoppinglist.UI.ActivityListener;
 import com.natallia.shoppinglist.UI.SendSMS;
+import com.natallia.shoppinglist.UI.ShoppingListItemAdapterCallback;
 import com.natallia.shoppinglist.adapters.ShoppingListItemRecyclerAdapter;
 import com.natallia.shoppinglist.database.DataManager;
+import com.natallia.shoppinglist.database.Item;
 import com.natallia.shoppinglist.database.ShoppingList;
 import com.natallia.shoppinglist.database.ShoppingListItem;
 import com.natallia.shoppinglist.helper.ItemTouchHelperAdapter;
@@ -41,20 +51,23 @@ import io.realm.RealmList;
 import io.realm.Sort;
 
 
-public class ShoppingListsEditFragment extends Fragment implements OnStartDragListener, TextView.OnEditorActionListener {
+public class ShoppingListsEditFragment extends Fragment
+        implements OnStartDragListener, TextView.OnEditorActionListener,
+        ShoppingListItemAdapterCallback, SelectFavoritesDialog.SelectFavoritesDialogListener {
     static final int RESULT_SPEECH_TO_TEXT = 2;
 
     private int mShoppingListId;
     private ShoppingList mShoppingList;
     public SendSMS sendSMS;
-    private Activity mActivity;
 
 
     private ActivityListener mActivityListener;
     private View mItemLayout;
-    private TextView mTexView;
+    private LinearLayout mLayoutShoppingList;
+    private TextView mTextViewName;
+    private TextView mTotalChecked;
     private RecyclerView mRecyclerView;
-  // private Button mButton_add;
+    private ImageButton mButton_favorite;
     private ShoppingListItemRecyclerAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -82,40 +95,49 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
         // прописываем layout фрагмента
         View view = inflater.inflate(R.layout.shopping_list_edit_fragment, container, false);
 
-        if (mShoppingListId == 0){
+        if (savedInstanceState != null){
             mShoppingListId = savedInstanceState.getInt("ShoppingListId",0);
+            sendSMS = (MainActivity) getActivity();
         }
-       mShoppingList = DataManager.getShoppingListById(mShoppingListId);
-
-        mTexView = (TextView) view.findViewById(R.id.ed_shopping_list_name);
-        mTexView.setText(mShoppingList.getName());
-        mTexView.setOnClickListener(new View.OnClickListener() {
+        mShoppingList = DataManager.getShoppingListById(mShoppingListId);
+        mTotalChecked = (TextView ) view.findViewById(R.id.total_checked);
+        mLayoutShoppingList = (LinearLayout)view.findViewById(R.id.layout_shopping_list);
+        refreshTotalChecked();
+        mTextViewName = (TextView) view.findViewById(R.id.ed_shopping_list_name);
+        mTextViewName.setText(mShoppingList.getName());
+        mTextViewName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final ShoppingListRenameDialog myDialogFragment = new ShoppingListRenameDialog();
-                myDialogFragment.mOldName = mTexView.getText().toString();
+                myDialogFragment.mOldName = mTextViewName.getText().toString();
                 myDialogFragment.show(getActivity().getFragmentManager(), "ShoppingListRenameDialog");
+
                 myDialogFragment.mListener = new ShoppingListRenameDialog.ShoppingListRenameDialogListener() {
                     @Override
                     public void onDialogPositiveClick(DialogFragment dialog, String text) {
                         if (!text.equals("")) {
-                            mTexView.setText(text);
-                            DataManager.setNameShoppingList(mShoppingList, mTexView.getText().toString());
+                            mTextViewName.setText(text);
+                            DataManager.setNameShoppingList(mShoppingList, mTextViewName.getText().toString());
                         }
-                    }
-
-                    @Override
-                    public void onDialogNegativeClick(DialogFragment dialog) {
-
                     }
                 };
             }
         });
+        mButton_favorite = (ImageButton) view.findViewById(R.id.favorite);
+        mButton_favorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DataManager.toggleFavorite(mShoppingList);
+                mAdapter.notifyDataSetChanged();
+                toggleFavorite();
+            }
+        });
 
+        toggleFavorite();
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_edit_items); //отображает все шопинг листы
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));//TODO
         List<ShoppingListItem> values = mShoppingList.getItems().where().findAllSorted("position", Sort.DESCENDING);
-        mAdapter = new ShoppingListItemRecyclerAdapter(values,true,this, mItemLayout, null, 0, getContext(),getActivity());
+        mAdapter = new ShoppingListItemRecyclerAdapter(values,true,this, mItemLayout, this, 0, getContext(),getActivity());
         mAdapter.setOnEditorActionListener(this);
         mRecyclerView.setItemAnimator(null); // // TODO: убрана анимация item
         mRecyclerView.setAdapter(mAdapter);
@@ -124,6 +146,31 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(mRecyclerView);
         return view;
+    }
+
+    private void refreshTotalChecked(){
+        String text = " " +DataManager.shoppingListGetChecked(mShoppingList) + "/" + mShoppingList.getItems().size();
+        mTotalChecked.setText(text);
+        if (DataManager.shoppingListIsChecked(mShoppingList)){
+            DataManager.setShoppingListIsChecked(mShoppingList, true);
+            mLayoutShoppingList.getBackground().setColorFilter(getContext().getResources().getColor(R.color.itemListBackgroundChecked), PorterDuff.Mode.MULTIPLY);
+           // mLayoutShoppingList.setBackgroundResource(R.color.itemListBackgroundChecked);
+        }
+        else{
+            DataManager.setShoppingListIsChecked(mShoppingList, false);
+            mLayoutShoppingList.getBackground().setColorFilter(getContext().getResources().getColor(R.color.itemListBackground), PorterDuff.Mode.MULTIPLY);
+            //mLayoutShoppingList.setBackgroundResource(R.color.itemListBackground);
+        }
+
+
+    }
+    private void toggleFavorite(){
+        if (mShoppingList.isFavorite()){
+            mButton_favorite.setBackgroundResource(R.drawable.ic_action_favorite);
+        }
+        else{
+            mButton_favorite.setBackgroundResource(R.drawable.ic_action_favorite_out);
+        }
     }
 
 
@@ -145,8 +192,6 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
     @Override
     public void onResume() {
         super.onResume();
-       // if(mActivityListener!=null) {mActivityListener.setTitle("Hello");
-        //}
     }
 
     @Override
@@ -169,18 +214,23 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("on destroy", "on destroy");
     }
+
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu, menu);
+        MenuItem iconFavorite = menu.findItem(R.id.favorite);
+        iconFavorite.setVisible(true);
         MenuItem iconSendSMS = menu.findItem(R.id.send_sms);
         iconSendSMS.setVisible(true);
         MenuItem iconMic = menu.findItem(R.id.voice_add);
         iconMic.setVisible(true);
-    }//TODO разобраться с меню
+        MenuItem iconDelete = menu.findItem(R.id.delete);
+        iconDelete.setVisible(true);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -190,30 +240,81 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
+            case R.id.favorite:
+                Bundle args = new Bundle();
+                args.putInt("id", mShoppingListId);
+
+                final SelectFavoritesDialog myDialogFragment = new SelectFavoritesDialog();
+                myDialogFragment.setArguments(args);
+                myDialogFragment.show(getActivity().getFragmentManager(), "SelectFavoritesDialog");
+                myDialogFragment.mListener = new SelectFavoritesDialog.SelectFavoritesDialogListener() {
+                    @Override
+                    public void onDialogPositiveClick(DialogFragment dialog) {
+
+                        if (myDialogFragment.mSelectedItems.size() == 0) {
+                            Log.d("No elements", "No elements");
+                        } else {
+                            for (int i = 0; i < myDialogFragment.mSelectedItems.size(); i++) {
+                                RealmList<ShoppingListItem> items = DataManager.getShoppingListById((int) myDialogFragment.mSelectedItems.get(i)).getItems();
+                                for (ShoppingListItem item : items) {
+                                    DataManager.addShoppingListItem(mShoppingList, item);
+                                }
+                            }
+                            mAdapter.notifyDataSetChanged();
+                            refreshTotalChecked();
+                        }
+                    }
+                };
+
+                break;
             case R.id.add:
                 DataManager.createShoppingListItem(mShoppingList);
                 mAdapter.notifyDataSetChanged();
                 mRecyclerView.smoothScrollToPosition(0);
+                refreshTotalChecked();
                 break;
             case R.id.delete:
-                DataManager.deleteShoppingList(DataManager.getShoppingListById(mShoppingListId));
-                mAdapter.notifyDataSetChanged();
-                getActivity().onBackPressed();
-                // TODO вызвать диалог с подтверждением удаления
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.AlertDialogCustom);
+                builder.setTitle(R.string.dialog_delete_title);
+                builder.setCancelable(true);
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() { // Кнопка ОК
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        DataManager.deleteShoppingList(DataManager.getShoppingListById(mShoppingListId));
+                        mAdapter.notifyDataSetChanged();
+                        getActivity().onBackPressed();
+                    }
+                });
+                builder.setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
                 break;
             case R.id.send_sms:
-
-                RealmList<ShoppingListItem> items = DataManager.getShoppingListById(mShoppingListId).getItems();
-                String txtsms = "";
+                List<ShoppingListItem> items = DataManager.getShoppingListById(mShoppingListId).getItems().where().findAllSorted("position", Sort.DESCENDING);
+                String txtsms = "Купи, пожалуйста! ";
                 int i = 0;
                 while (i < items.size()) {
-                    String  itemName = items.get(i).getItem().getName() == null? "": items.get(i).getItem().getName().toString();
-                    txtsms+= itemName + ", ";
+                    Item curItem = items.get(i).getItem();
+                    if (curItem.getName() == null || curItem.getName().equals("")){
+
+                    }
+                    else{
+                        String itemName = curItem.getName().toString() + " "+String.valueOf(items.get(i).getAmount())+" шт.";
+                        if (i == items.size()-1)  {
+                            txtsms+= itemName;
+                        } else {
+                            txtsms+= itemName + ", ";
+                        }
+                    }
                     i++;
+
                 }
                 sendSMS.sendSMS(txtsms);
-                Log.d("editFragment", "send sms");
-
                 break;
             case R.id.voice_add:
                 Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -230,16 +331,23 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt("ShoppingListId",mShoppingListId);
+        outState.putInt("ShoppingListId", mShoppingListId);
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+       // mShoppingListId = savedInstanceState.getInt("ShoppingListId",0);
+    }
 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_NEXT) {
             DataManager.createShoppingListItem(mShoppingList);
             mAdapter.notifyDataSetChanged();
+            refreshTotalChecked();
             mRecyclerView.smoothScrollToPosition(0);
+
             return true;
         }
         return false;
@@ -253,9 +361,32 @@ public class ShoppingListsEditFragment extends Fragment implements OnStartDragLi
             ShoppingListItem item = DataManager.createShoppingListItem(mShoppingList);
             DataManager.setNameShoppingListItem(item.getItem(), matches.get(0));
             mAdapter.notifyDataSetChanged();
+            refreshTotalChecked();
             mRecyclerView.smoothScrollToPosition(0);
         }
     }
 
 
+    @Override
+    public void onItemChecked(int position) {
+        refreshTotalChecked();
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        final SelectFavoritesDialog myDialog = (SelectFavoritesDialog) dialog;
+        if (myDialog.mSelectedItems.size() == 0) {
+            Log.d("No elements", "No elements");
+        } else {
+            for (int i = 0; i < myDialog.mSelectedItems.size(); i++) {
+                RealmList<ShoppingListItem> items = DataManager.getShoppingListById((int) myDialog.mSelectedItems.get(i)).getItems();
+                for (ShoppingListItem item : items) {
+                    DataManager.addShoppingListItem(mShoppingList, item);
+                }
+            }
+            mAdapter.notifyDataSetChanged();
+            refreshTotalChecked();
+            myDialog.mSelectedItems.clear();
+        }
+    }
 }

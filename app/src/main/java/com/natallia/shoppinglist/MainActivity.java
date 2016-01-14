@@ -1,5 +1,6 @@
 package com.natallia.shoppinglist;
 
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -24,6 +25,7 @@ import com.natallia.shoppinglist.UI.MaterialMenuDrawable;
 import com.natallia.shoppinglist.UI.OnShoppingListEdit;
 import com.natallia.shoppinglist.UI.SendSMS;
 import com.natallia.shoppinglist.database.DataManager;
+import com.natallia.shoppinglist.fragments.SelectFavoritesDialog;
 import com.natallia.shoppinglist.fragments.SendSMSFragment;
 import com.natallia.shoppinglist.fragments.ShoppingListsEditFragment;
 import com.natallia.shoppinglist.fragments.ShoppingListsFragment;
@@ -33,6 +35,9 @@ import java.util.Comparator;
 public class MainActivity extends AppCompatActivity implements ActivityListener,OnShoppingListEdit,SendSMS{
 
     public static final String TAG = MainActivity.class.getName();
+    public final static String TAG_MAIN = "FRAGMENT_MAIN";
+    public final static String TAG_EDIT = "FRAGMENT_EDIT";
+    public final static String TAG_SMS = "FRAGMENT_SMS";
 
     private TextView mTitleView;
     private MaterialMenuDrawable mMenu;
@@ -44,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
     private FragmentTransaction tr;
 
     private boolean          direction;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
             tr = getSupportFragmentManager().beginTransaction();
             ShoppingListsFragment fragment = ShoppingListsFragment.getInstance(getIntent());
             fragment.onShoppingListEdit = this;
-            tr.replace(R.id.container, fragment);
+            tr.replace(R.id.container, fragment,TAG_MAIN);
             tr.commit();
         }
  }
@@ -65,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
     private void initToolbar(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setContentInsetsAbsolute(0,0);
-        mTitleView = (TextView) findViewById(R.id.tv_title);
+       // mTitleView = (TextView) findViewById(R.id.tv_title);
         mMenu = new MaterialMenuDrawable(this, Color.BLACK,MaterialMenuDrawable.Stroke.REGULAR,300);
 
         setSupportActionBar(toolbar);
@@ -181,18 +188,26 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
 
     @Override
     public void setTitle(String title) {
-        mTitleView.setText(title);
+        //mTitleView.setText(title);
     }
 
     @Override
     public void changeFragment(Fragment fragment) {
+      /*  tr = getSupportFragmentManager().beginTransaction();
+        tr.setCustomAnimations(R.anim.slide_left_in,R.anim.slide_left_out,R.anim.slide_right_in,R.anim.slide_right_out);
+        tr.replace(R.id.container, fragment, "EDIT");
+        tr.addToBackStack(null);
+        tr.commit();
+         */
+    }
+
+    public void myChangeFragment(Fragment fragment, String tag) {
         tr = getSupportFragmentManager().beginTransaction();
         tr.setCustomAnimations(R.anim.slide_left_in,R.anim.slide_left_out,R.anim.slide_right_in,R.anim.slide_right_out);
-        tr.replace(R.id.container, fragment);
+        tr.replace(R.id.container, fragment, tag);
         tr.addToBackStack(null);
         tr.commit();
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return super.onCreateOptionsMenu(menu);
@@ -205,7 +220,8 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
         intent.putExtra("ShoppingListId",shoppingListId);
         ShoppingListsEditFragment fragment  = ShoppingListsEditFragment.getInstance(intent);
         fragment.sendSMS = this;
-        changeFragment(fragment);
+
+        myChangeFragment(fragment, TAG_EDIT);
     }
 
 
@@ -234,7 +250,8 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
         Intent intent = getIntent();
         intent.putExtra("SMSText",smsText);
         SendSMSFragment fragment  = SendSMSFragment.getInstance(intent);
-        changeFragment(fragment);
+        myChangeFragment(fragment, TAG_SMS);
     }
+
 
 }

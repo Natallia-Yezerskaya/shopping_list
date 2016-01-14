@@ -44,7 +44,6 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListItemA
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        // прописываем layout фрагмента
         View view = inflater.inflate(R.layout.shopping_list_fragment, container, false);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_shopping_list); //отображает все шопинг листы
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -105,7 +104,9 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListItemA
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu, menu); // устанавливаем верхнее меню
+        inflater.inflate(R.menu.menu, menu);
+        MenuItem iconSort = menu.findItem(R.id.sort);
+        iconSort.setVisible(true);
     }
 
     @Override
@@ -121,20 +122,12 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListItemA
                 mAdapter.notifyDataSetChanged();
                 DataManager.createShoppingListItem(shoppingList);
                 onShoppingListEdit.onShoppingListEdit(shoppingList.getId());
-                Log.d("ShoppingList", "onOptionsItemSelected"); //TODO проверить работу кнопок в каждом фрагменте
+                Log.d("ShoppingList", "onOptionsItemSelected");
             break;
-            case R.id.delete:
-
-               // ShoppingListsEditFragment fragment  = ShoppingListsEditFragment.getInstance("djkgfhsg",getActivity().getIntent());
-               // mActivityListener.changeFragment(fragment);
-
-                //Log.d("ShoppingList", "onOptionsItemSelected"); //TODO проверить работу кнопок в каждом фрагменте
+            case R.id.sort:
+                DataManager.sortShoppingLists();
+                mAdapter.notifyDataSetChanged();
               break;
-            case R.id.send_sms:
-
-                Log.d("ShoppingList", "send sms");
-                break;
-
         }
         return super.onOptionsItemSelected(item);
     }
@@ -144,9 +137,13 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListItemA
 
         LinearLayoutManager layoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
         int childIndex = position - layoutManager.findFirstVisibleItemPosition();
-        TextView tv = (TextView)mRecyclerView.getChildAt(childIndex).findViewById(R.id.total_checked);
+        TextView tvTotal = (TextView)mRecyclerView.getChildAt(childIndex).findViewById(R.id.total_checked);
+        TextView tvName = (TextView)mRecyclerView.getChildAt(childIndex).findViewById(R.id.tv_shopping_list_name);
         ShoppingListRecyclerAdapter adapter = (ShoppingListRecyclerAdapter) mRecyclerView.getAdapter();
         LinearLayout layout = (LinearLayout) mRecyclerView.getChildAt(childIndex).findViewById(R.id.linear_layout_shopping_list);
-        adapter.RefreshTotalChecked(tv,layout, position);
+        adapter.RefreshTotalChecked(tvTotal,tvName,layout, position);
+
+       // ShoppingListRecyclerAdapter adapter = (ShoppingListRecyclerAdapter) mRecyclerView.getAdapter();
+        //adapter.notifyDataSetChanged();
     }
 }

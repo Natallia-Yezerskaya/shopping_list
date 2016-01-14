@@ -14,8 +14,9 @@ public class ShoppingList extends RealmObject {
     private String name;
     private RealmList<ShoppingListItem> items;
     private boolean expanded;
-
-
+    private boolean favorite;
+    private boolean isChecked;
+    private int position;
 
     public int getId() {
         return id;
@@ -47,5 +48,29 @@ public class ShoppingList extends RealmObject {
 
     public void setExpanded(boolean expanded) {
         this.expanded = expanded;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
+
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setIsChecked(boolean isChecked) {
+        this.isChecked = isChecked;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }

@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,20 +24,16 @@ public class ShoppingListRenameDialog extends DialogFragment {
     public Activity activity;
     public interface ShoppingListRenameDialogListener {
         public void onDialogPositiveClick(DialogFragment dialog,String text);
-        public void onDialogNegativeClick(DialogFragment dialog);
     }
-
-
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        //mNewName = ;
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),R.style.AlertDialogCustom);
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final View view = inflater.inflate(R.layout.dialog_setname, null);
         ((EditText) view.findViewById(R.id.et_dialog)).setText(mOldName);
         builder.setView(view);
-        builder.setMessage(R.string.dialog_rename_shopping_list_name)
+        builder.setTitle(R.string.dialog_rename_shopping_list_name)
                 .setPositiveButton(R.string.dialog_save, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         String newName =((EditText) view.findViewById(R.id.et_dialog)).getText().toString();
@@ -48,7 +45,14 @@ public class ShoppingListRenameDialog extends DialogFragment {
                         ShoppingListRenameDialog.this.getDialog().cancel();
                     }
                 });
-        // Create the AlertDialog object and return it
         return builder.create();
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (mListener==null){
+            dismiss();
+        }
     }
 }

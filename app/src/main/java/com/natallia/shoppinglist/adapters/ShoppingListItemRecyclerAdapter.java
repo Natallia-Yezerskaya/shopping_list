@@ -9,19 +9,16 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.natallia.shoppinglist.MainActivity;
 import com.natallia.shoppinglist.R;
 import com.natallia.shoppinglist.UI.ShoppingListItemAdapterCallback;
 import com.natallia.shoppinglist.database.DataManager;
@@ -55,30 +52,32 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
     //будет хранить данные одного item
     public class ShoppingListItemHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder{
 
-        public EditText mTextView_name;
-       // public TextView mTextView_number;
-        public Button mButton_icon;
+        public TextView mEditText_name;
+       // public TextView mTextView_name;
+       // public Button mButton_icon;
         public CheckBox mCheckBox;
         public View mItemView;
-        public EditText mNumberPicker;
+        public LinearLayout mItemLayout;
+        public TextView mNumberPicker;
+        //public TextView mNumberPickerTv;
         public Button mNumberPickerPlus;
         public Button mNumberPickerMinus;
 
-        //public ClassLoader mOwnerRecyclerView;
 
         public ShoppingListItemHolder(View itemView) {
+
             super(itemView);
             mItemView = itemView;
-            mTextView_name = (EditText) itemView.findViewById(R.id.tv_item_name);
-           // mTextView_number = (TextView) itemView.findViewById(R.id.tv_number);
-            mButton_icon = (Button) itemView.findViewById(R.id.btn_icon);
+            mItemLayout =(LinearLayout)itemView.findViewById(R.id.linear_layout_item);
+            mEditText_name = (TextView) itemView.findViewById(R.id.et_item_name);
+            if (editMode) {
+                mNumberPickerPlus = (Button) itemView.findViewById(R.id.btn_plus);
+                mNumberPickerMinus = (Button) itemView.findViewById(R.id.btn_minus);
+            }
             mCheckBox = (CheckBox)itemView.findViewById(R.id.checkbox_item);
-            mNumberPicker = (EditText) itemView.findViewById(R.id.numberPicker);
-            mNumberPickerPlus = (Button) itemView.findViewById(R.id.btn_plus);
-            mNumberPickerMinus = (Button) itemView.findViewById(R.id.btn_minus);
+            mNumberPicker = (TextView) itemView.findViewById(R.id.numberPicker);
 
         }
-
 
         @Override
         public void onItemSelected() {
@@ -114,15 +113,22 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
 
     @Override
     public ShoppingListItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.shopping_list_item_element,parent,false);
+        View v;
+        if (editMode){
+           v = LayoutInflater.from(parent.getContext()).inflate(R.layout.shopping_list_item_element_edit,parent,false);
+        }
+        else {
+            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.shopping_list_item_element, parent, false);
+        }
         return new ShoppingListItemHolder(v);
     }
 
+   /*
     public void insertItem(List<ShoppingListItem> items) {
         shoppingListItems = items;
         notifyItemInserted(0);
     }
-
+*/
     @Override
     public int getItemCount() {
         return shoppingListItems.size();
@@ -132,122 +138,110 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
     public void onBindViewHolder(final ShoppingListItemHolder holder, int position) {
         final ShoppingListItem shoppingListItem = shoppingListItems.get(position);
         final Item item = shoppingListItem.getItem();
-        if (editMode && position == 0 && shoppingListItems.get(position).getItem().getName() == null) {
-            final InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            holder.mTextView_name.post(new Runnable() {
-                @Override
-                public void run() {
-                    holder.mTextView_name.requestFocus();
-                    imm.showSoftInput(holder.mTextView_name, 0);
-                }
-            });
 
-        }
-
+        holder.mEditText_name.setText(item.getName());
+        holder.mNumberPicker.setText(String.valueOf(shoppingListItem.getAmount()));
         if (shoppingListItem.isChecked()) {
-            //holder.mItemView.setBackgroundColor(holder.mItemView.getResources().getColor(R.color.itemBackgroundChecked));
-            holder.mItemView.getBackground().setColorFilter(holder.mItemView.getResources().getColor(R.color.itemBackgroundChecked),PorterDuff.Mode.MULTIPLY);
-        }else {
-            //holder.mItemView.setBackgroundColor(holder.mItemView.getResources().getColor(R.color.itemBackground));
-            holder.mItemView.getBackground().setColorFilter(holder.mItemView.getResources().getColor(R.color.itemBackground), PorterDuff.Mode.MULTIPLY);
-        }
-        holder.mTextView_name.setText(item.getName());
-        if (shoppingListItem.isChecked()) {
-            holder.mTextView_name.setPaintFlags(holder.mTextView_name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.mEditText_name.setPaintFlags(holder.mEditText_name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
         else{
-            holder.mTextView_name.setPaintFlags(holder.mTextView_name.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG) );
+            holder.mEditText_name.setPaintFlags(holder.mEditText_name.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG) );
         }
-            holder.mTextView_name.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                DataManager.setNameShoppingListItem(item, ((EditText) v).getText().toString());
-                //notifyDataSetChanged();
-            }
-        });
-        holder.mTextView_name.setOnEditorActionListener(onEditorActionListener);
 
-
-        holder.mNumberPicker.setText(String.valueOf(shoppingListItem.getAmount()));
-        holder.mNumberPicker.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                DataManager.setAmountShoppingListItem(shoppingListItem, Float.parseFloat(((EditText) v).getText().toString()));
-            }
-        });
-        holder.mNumberPickerPlus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                float value = Float.parseFloat(holder.mNumberPicker.getText().toString());
-                holder.mNumberPicker.setText(String.valueOf(value + 0.5f));
-                DataManager.setAmountShoppingListItem(shoppingListItem, value + 0.5f);
-            }
-        });
-
-        holder.mNumberPickerMinus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                float value = Float.parseFloat(holder.mNumberPicker.getText().toString());
-                if (value != 0f) {
-                    holder.mNumberPicker.setText(String.valueOf(value - 0.5f));
-                    DataManager.setAmountShoppingListItem(shoppingListItem, value - 0.5f);
-                }
-            }
-        });
-
-        holder.mButton_icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DataManager.deleteShoppingListItem(shoppingListItems.get(holder.getAdapterPosition()));
-                notifyDataSetChanged();
+        if (editMode && position == 0 && shoppingListItems.get(position).getItem().getName() == null) {
+            final InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            holder.mEditText_name.post(new Runnable() {
+                @Override
+                public void run() {
+                    holder.mEditText_name.requestFocus();
+                    imm.showSoftInput(holder.mEditText_name, 0);
                 }
             });
-        holder.mButton_icon.setVisibility(View.GONE);
+
+        }
+
+        if (shoppingListItem.isChecked()) {
+            holder.mItemView.getBackground().setColorFilter(holder.mItemView.getResources().getColor(R.color.itemBackgroundChecked), PorterDuff.Mode.MULTIPLY);
+        }else {
+            holder.mItemView.getBackground().setColorFilter(holder.mItemView.getResources().getColor(R.color.itemBackground), PorterDuff.Mode.MULTIPLY);
+        }
+
+        holder.mNumberPicker.setText(String.valueOf(shoppingListItem.getAmount()));
+       if (editMode) {
+           holder.mEditText_name.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+               @Override
+               public void onFocusChange(View v, boolean hasFocus) {
+                   DataManager.setNameShoppingListItem(item, ((EditText) v).getText().toString());
+               }
+           });
+           holder.mEditText_name.setOnEditorActionListener(onEditorActionListener);
+           holder.mNumberPicker.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+               @Override
+               public void onFocusChange(View v, boolean hasFocus) {
+                   DataManager.setAmountShoppingListItem(shoppingListItem, Float.parseFloat(((EditText) v).getText().toString()));
+               }
+           });
+           holder.mNumberPickerPlus.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                   float value = Float.parseFloat(holder.mNumberPicker.getText().toString());
+                   holder.mNumberPicker.setText(String.valueOf(value + 0.5f));
+                   DataManager.setAmountShoppingListItem(shoppingListItem, value + 0.5f);
+               }
+           });
+
+           holder.mNumberPickerMinus.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                   float value = Float.parseFloat(holder.mNumberPicker.getText().toString());
+                   if (value != 0f) {
+                       holder.mNumberPicker.setText(String.valueOf(value - 0.5f));
+                       DataManager.setAmountShoppingListItem(shoppingListItem, value - 0.5f);
+                   }
+               }
+           });
+       }
+        else {
+           holder.mNumberPicker.setEnabled(false);
+           holder.mItemLayout.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                   DataManager.toggleChecked(shoppingListItems.get(holder.getAdapterPosition()));
+                   notifyItemChanged(holder.getAdapterPosition());
+                   if (mShoppingListItemAdapterCallback != null) {
+                       mShoppingListItemAdapterCallback.onItemChecked(mShoppingListPosition);
+                   }
+               }
+           });
+       }
 
         holder.mCheckBox.setChecked(shoppingListItems.get(holder.getAdapterPosition()).isChecked());
         holder.mCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 DataManager.toggleChecked(shoppingListItems.get(holder.getAdapterPosition()));
+
                 notifyItemChanged(holder.getAdapterPosition());
                 if (mShoppingListItemAdapterCallback!=null) {
                     mShoppingListItemAdapterCallback.onItemChecked(mShoppingListPosition);
-                }
+               }
             }
-
         });
-
-
-        if (editMode){
-           // holder.mButton_icon.setVisibility(View.VISIBLE);
-        }
-        else{
-            holder.mButton_icon.setVisibility(View.GONE);
-            holder.mNumberPickerMinus.setVisibility(View.GONE);
-            holder.mNumberPickerPlus.setVisibility(View.GONE);
-            holder.mTextView_name.setEnabled(false);
-            holder.mNumberPicker.setEnabled(false);
-            //holder.mNumberPicker.setTextColor();
-            holder.mTextView_name.setCursorVisible(false);
-            holder.mNumberPicker.setCursorVisible(false);
-
-        }
-
     }
 
     @Override
-    public boolean onItemMove(int fromPosition, int toPosition) {//TODO
+    public boolean onItemMove(int fromPosition, int toPosition) {
         DataManager.swapShoppingListItems(shoppingListItems, fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
         return true;
-
     }
 
     @Override
-    public void onItemDismiss(int position) {//TODO
+    public void onItemDismiss(int position) {
         DataManager.deleteShoppingListItem(shoppingListItems.get(position));
         notifyDataSetChanged();
+        if (mShoppingListItemAdapterCallback!=null) {
+            mShoppingListItemAdapterCallback.onItemChecked(mShoppingListPosition);
+        }
     }
-
 }

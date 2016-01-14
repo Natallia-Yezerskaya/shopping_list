@@ -2,9 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+
+    <item
+        android:id="@+id/favorite"
+        android:icon="@drawable/ic_av_playlist_add"
+        android:orderInCategory="100"
+        android:title="Add"
+        app:showAsAction="always"
+        android:visible="false"/>
+
     <item
         android:id="@+id/voice_add"
-        android:icon="@android:drawable/ic_media_next"
+        android:icon="@drawable/ic_av_mic"
         android:orderInCategory="100"
         android:title="Add"
         app:showAsAction="always"
@@ -12,7 +21,7 @@
 
     <item
         android:id="@+id/send_sms"
-        android:icon="@android:drawable/sym_action_email"
+        android:icon="@drawable/ic_content_mail"
         android:orderInCategory="100"
         android:title="SMS"
         app:showAsAction="always"
@@ -21,19 +30,27 @@
     <item
 
         android:id="@+id/add"
-        android:icon="@android:drawable/ic_input_add"
+        android:icon="@drawable/ic_content_add_circle"
         android:orderInCategory="100"
         android:title="Add item"
-        app:showAsAction="always"/>
+        app:showAsAction="always" />
+
+    <item
+
+        android:id="@+id/sort"
+        android:icon="@drawable/ic_content_sort"
+        android:orderInCategory="100"
+        android:title="Sort lists"
+        app:showAsAction="always"
+        android:visible="false"/>
 
     <item
 
         android:id="@+id/delete"
-        android:icon="@android:drawable/ic_input_delete"
+        android:icon="@drawable/ic_action_delete"
         android:orderInCategory="100"
         android:title="Delete shopping list"
-        app:showAsAction="always"/>
-
-
+        app:showAsAction="always"
+        android:visible="false"/>
 
 </menu>

@@ -2,22 +2,48 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@color/mainActivityBackground">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:id="@+id/ed_shopping_list_name"
-        android:textColor="@color/primaryFont"
-        android:hint="Новый список"
-        android:singleLine="true"/>
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:weightSum="100"
+        android:id="@+id/layout_shopping_list"
+        android:background="@drawable/rectangle_rounded_some">
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/favorite"
+            android:background="@drawable/ic_action_favorite_out" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:id="@+id/ed_shopping_list_name"
+            android:textColor="@color/primaryFont"
+            android:textSize="20dp"
+            android:hint="Новый список"
+            android:singleLine="true"
+            android:layout_weight="80" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/total_checked"
+            android:hint="1/1"
+            android:textColor="@color/primaryFont"
+            android:layout_weight="20" />
+
+    </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/rv_edit_items"
-        android:background="@color/editFragmentBackground"
-        >
+        android:background="@drawable/rectangle_rounded_some_layout">
 
     </android.support.v7.widget.RecyclerView>
 

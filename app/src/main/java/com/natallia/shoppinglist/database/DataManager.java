@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.natallia.shoppinglist.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
@@ -33,11 +34,21 @@ public class DataManager {
     }
 
     public static List<ShoppingList> getShoppingLists() {
-
-        final RealmResults<ShoppingList> results = realm.where(ShoppingList.class).findAllSorted("id", Sort.DESCENDING);
+       // final RealmResults<ShoppingList> results = realm.where(ShoppingList.class).findAllSorted("isChecked", Sort.ASCENDING, "id", Sort.DESCENDING);
+        final RealmResults<ShoppingList> results = realm.where(ShoppingList.class).findAllSorted("position", Sort.DESCENDING);
         return results;
     }
 
+    public static void sortShoppingLists() {
+        realm.beginTransaction();
+
+        RealmResults<ShoppingList> results = realm.where(ShoppingList.class).findAllSorted("isChecked", Sort.DESCENDING, "id", Sort.ASCENDING);
+
+        for (int i = 0; i < results.size(); i++) {
+            results.get(i).setPosition(i);
+        }
+        realm.commitTransaction();
+    }
     public static void setNameShoppingList(ShoppingList shoppingList, String name) {
         realm.beginTransaction();
         shoppingList.setName(name);
@@ -63,6 +74,12 @@ public class DataManager {
     public static void toggleExpanded(ShoppingList shoppingList) {
         realm.beginTransaction();
         shoppingList.setExpanded(!shoppingList.isExpanded());
+        realm.commitTransaction();
+    }
+
+    public static void toggleFavorite(ShoppingList shoppingList) {
+        realm.beginTransaction();
+        shoppingList.setFavorite(!shoppingList.isFavorite());
         realm.commitTransaction();
     }
 
@@ -94,11 +111,23 @@ public class DataManager {
             return false;}
     }
 
+    public static void  setShoppingListIsChecked(ShoppingList shoppingList, boolean isChecked) {
+        realm.beginTransaction();
+        shoppingList.setIsChecked(isChecked);
+        realm.commitTransaction();
+    }
     public static int  shoppingListGetChecked(ShoppingList shoppingList) {
         Long count = shoppingList.getItems().where().equalTo("checked",true).count();
         return count.intValue();
     }
 
+    public static List<ShoppingList>  getFavoriteShoppingLists(int idShoppingList) {
+        List <ShoppingList> favoritesShoppingList = realm.where(ShoppingList.class).equalTo("favorite",true).notEqualTo("id",idShoppingList).findAll();
+        for (int i = 0; i <favoritesShoppingList.size() ; i++) {
+
+        }
+        return favoritesShoppingList;
+    }
     public static int getNextId(Class<? extends RealmObject> clazz) {
         final Number currentMaxId = realm.where(clazz).max("id");
         if (currentMaxId == null) {
@@ -114,12 +143,20 @@ public class DataManager {
         }
         return currentMaxPosition.intValue() + 1;
     }
+    public static int getNextPositionOfShoppingList() {
+        final Number currentMaxPosition = realm.where(ShoppingList.class).findAll().where().max("position");
+        if (currentMaxPosition == null) {
+            return 1;
+        }
+        return currentMaxPosition.intValue() + 1;
+    }
 
     // первоначальное заполнение базы
     public static ShoppingList createShoppingList() {
         realm.beginTransaction();
         ShoppingList shoppingList = realm.createObject(ShoppingList.class);
         shoppingList.setId(getNextId(ShoppingList.class));
+        shoppingList.setPosition(getNextPositionOfShoppingList());
         shoppingList.setName("Новый список");
         shoppingList.setExpanded(true);
         realm.commitTransaction();
@@ -143,6 +180,22 @@ public class DataManager {
 
         realm.commitTransaction();
         return shoppingListItem;
+    }
+
+    public static void addShoppingListItem(ShoppingList shoppingList,ShoppingListItem shoppingListItem) {
+        realm.beginTransaction();
+
+        ShoppingListItem newShoppingListItem = realm.createObject(ShoppingListItem.class);
+
+        newShoppingListItem.setAmount(shoppingListItem.getAmount());
+        newShoppingListItem.setItem(shoppingListItem.getItem());
+        newShoppingListItem.setChecked(false);
+        newShoppingListItem.setId(getNextId(ShoppingListItem.class));
+        newShoppingListItem.setPosition(getNextPositionOfShoppingListItem(shoppingList));
+        shoppingList.getItems().add(newShoppingListItem);
+
+        realm.commitTransaction();
+
     }
     public static void InitializeData() {
         //  showStatus("Perform basic Create/Read/Update/Delete (CRUD) operations...");
@@ -219,17 +272,30 @@ public class DataManager {
         if (realm.allObjects(ShoppingList.class).size() == 0) {
             int id = 0;//realm.allObjects(Category.class).max("id").intValue();
             ;
-            Item item = realm.where(Item.class).equalTo("name","Молоко").findFirst();
+            //Item item = realm.where(Item.class).equalTo("name","Молоко").findFirst();
             ShoppingList shoppingList = realm.createObject(ShoppingList.class);
             shoppingList.setId(getNextId(ShoppingList.class));
+            shoppingList.setPosition(getNextPositionOfShoppingList());
+            Log.d("shopping position", String.valueOf(shoppingList.getPosition()));
             shoppingList.setName("Голубцы");
             shoppingList.getItems().addAll(realm.where(ShoppingListItem.class).findAll());   // TODO перенести в стринги
             shoppingList.setExpanded(true);
 
+            Item item = realm.where(Item.class).equalTo("name","Молоко").findFirst();
+            ShoppingListItem shoppingListItem = realm.createObject(ShoppingListItem.class);
+            shoppingListItem.setId(getNextId(ShoppingListItem.class));
+            shoppingListItem.setPosition(1);
+            shoppingListItem.setItem(item);
+            shoppingListItem.setChecked(false);
+            shoppingListItem.setAmount(1f);
+
+
             shoppingList = realm.createObject(ShoppingList.class);
             shoppingList.setId(getNextId(ShoppingList.class));
+            shoppingList.setPosition(getNextPositionOfShoppingList());
+            Log.d("shopping position", String.valueOf(shoppingList.getPosition()));
             shoppingList.setName("Продукты");
-            shoppingList.getItems().add(realm.where(ShoppingListItem.class).findFirst());
+            shoppingList.getItems().add(shoppingListItem);
             shoppingList.setExpanded(true);
         }
         realm.commitTransaction();
