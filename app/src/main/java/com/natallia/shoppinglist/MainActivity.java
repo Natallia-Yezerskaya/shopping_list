@@ -1,56 +1,44 @@
 package com.natallia.shoppinglist;
 
-import android.app.DialogFragment;
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.support.design.widget.NavigationView;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.natallia.shoppinglist.UI.ActivityListener;
 import com.natallia.shoppinglist.UI.MaterialMenuDrawable;
 import com.natallia.shoppinglist.UI.OnShoppingListEdit;
 import com.natallia.shoppinglist.UI.SendSMS;
 import com.natallia.shoppinglist.database.DataManager;
-import com.natallia.shoppinglist.fragments.SelectFavoritesDialog;
 import com.natallia.shoppinglist.fragments.SendSMSFragment;
 import com.natallia.shoppinglist.fragments.ShoppingListsEditFragment;
 import com.natallia.shoppinglist.fragments.ShoppingListsFragment;
 
-import java.util.Comparator;
-
 public class MainActivity extends AppCompatActivity implements ActivityListener,OnShoppingListEdit,SendSMS{
 
     public static final String TAG = MainActivity.class.getName();
-    public final static String TAG_MAIN = "FRAGMENT_MAIN";
-    public final static String TAG_EDIT = "FRAGMENT_EDIT";
-    public final static String TAG_SMS = "FRAGMENT_SMS";
 
-    private TextView mTitleView;
     private MaterialMenuDrawable mMenu;
     private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
+    private NavigationView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
-
     private DataManager dataManager;
     private FragmentTransaction tr;
-
-    private boolean          direction;
-
-
+    private boolean direction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +48,11 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
         dataManager = new DataManager(this);
         DataManager.InitializeData();
 
-        if (savedInstanceState == null) {  // открываем фрагмент со списком всех листов
+        if (savedInstanceState == null) {
             tr = getSupportFragmentManager().beginTransaction();
             ShoppingListsFragment fragment = ShoppingListsFragment.getInstance(getIntent());
             fragment.onShoppingListEdit = this;
-            tr.replace(R.id.container, fragment,TAG_MAIN);
+            tr.replace(R.id.container, fragment);
             tr.commit();
         }
  }
@@ -72,11 +60,8 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
     private void initToolbar(){
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setContentInsetsAbsolute(0,0);
-       // mTitleView = (TextView) findViewById(R.id.tv_title);
         mMenu = new MaterialMenuDrawable(this, Color.BLACK,MaterialMenuDrawable.Stroke.REGULAR,300);
-
         setSupportActionBar(toolbar);
-
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,50 +71,39 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
         });
         toolbar.setNavigationIcon(mMenu);
 
-
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowHomeEnabled(false);
-        getSupportActionBar().setCustomView(R.layout.qqqw);
-
-       //materialMenuView = (MaterialMenuView) parent.findViewById(R.id.material_menu_button);
-        //materialMenuView.setOnClickListener(this);
-        //materialIcon = actionBarIcon;
+        getSupportActionBar().setCustomView(R.layout.drawer_l);
 
         mDrawerLayout = ((DrawerLayout)findViewById(R.id.drawer_layout));
-        mDrawerLayout.setScrimColor(Color.parseColor("#66000000"));
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        //mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-         //       R.layout.drawer_list_item, mPlanetTitles));
-        // Set the list's click listener
-        //mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-
-
+        mDrawerList = (NavigationView)mDrawerLayout.getChildAt(1);//(ListView) findViewById(R.id.left_drawer);
+        mDrawerList.setBackgroundResource(R.color.itemListBackground);
+        mDrawerList.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.about:
+                        showDialogAbout();
+                        break;
+                }
+                return false;
+            }
+        });
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                toolbar, R.string.drawer_open, R.string.drawer_close) {
-
-            /** Этот код вызывается, когда боковое меню переходит в полностью закрытое состояние. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-              //  getActionBar().setTitle(mTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                invalidateOptionsMenu();
             }
-
-            /** Этот код вызывается, когда боковое меню полностью открывается. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-               // getActionBar().setTitle(mDrawerTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                invalidateOptionsMenu();
             }
         };
 
-        // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-
-
-
-    mDrawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+        mDrawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
 
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
@@ -149,65 +123,42 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
                 direction = false;
             }
         });
+    }
 
-       /* mDrawerLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mDrawerLayout.openDrawer(Gravity.LEFT);
+    private void showDialogAbout() {
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View view = inflater.inflate(R.layout.about_layout, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.AlertDialogCustom);
+        builder.setTitle(R.string.drawer_item_about);
+        builder.setView(view);
+        builder.setCancelable(true);
+        builder.setNegativeButton(R.string.dialog_ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
             }
-        }, 1500);
-*/
+        });
 
-       /* new Drawer()
-                .withActivity(this)
-                .withToolbar(toolbar)
-                .withActionBarDrawerToggle(true)
-                .withHeader(R.layout.drawer_header)
-                .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIcon(FontAwesome.Icon.faw_home).withBadge("99").withIdentifier(1),
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_free_play).withIcon(FontAwesome.Icon.faw_gamepad),
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_custom).withIcon(FontAwesome.Icon.faw_eye).withBadge("6").withIdentifier(2),
-                        new SectionDrawerItem().withName(R.string.drawer_item_settings),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_cog),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIcon(FontAwesome.Icon.faw_question).setEnabled(false),
-                        new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_contact).withIcon(FontAwesome.Icon.faw_github).withBadge("12+").withIdentifier(1)
-                )
-                .build();
-*/
-
-
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-       // realm.close();
     }
 
-    @Override
-    public void setTitle(String title) {
-        //mTitleView.setText(title);
-    }
 
     @Override
     public void changeFragment(Fragment fragment) {
-      /*  tr = getSupportFragmentManager().beginTransaction();
-        tr.setCustomAnimations(R.anim.slide_left_in,R.anim.slide_left_out,R.anim.slide_right_in,R.anim.slide_right_out);
+        tr = getSupportFragmentManager().beginTransaction();
+        tr.setCustomAnimations(R.anim.slide_left_in, R.anim.slide_left_out, R.anim.slide_right_in, R.anim.slide_right_out);
         tr.replace(R.id.container, fragment, "EDIT");
         tr.addToBackStack(null);
         tr.commit();
-         */
+
     }
 
-    public void myChangeFragment(Fragment fragment, String tag) {
-        tr = getSupportFragmentManager().beginTransaction();
-        tr.setCustomAnimations(R.anim.slide_left_in,R.anim.slide_left_out,R.anim.slide_right_in,R.anim.slide_right_out);
-        tr.replace(R.id.container, fragment, tag);
-        tr.addToBackStack(null);
-        tr.commit();
-    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return super.onCreateOptionsMenu(menu);
@@ -220,10 +171,8 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
         intent.putExtra("ShoppingListId",shoppingListId);
         ShoppingListsEditFragment fragment  = ShoppingListsEditFragment.getInstance(intent);
         fragment.sendSMS = this;
-
-        myChangeFragment(fragment, TAG_EDIT);
+        changeFragment(fragment);
     }
-
 
     @Override
     public void onShoppingListEdit(int shoppingListId) {
@@ -250,8 +199,6 @@ public class MainActivity extends AppCompatActivity implements ActivityListener,
         Intent intent = getIntent();
         intent.putExtra("SMSText",smsText);
         SendSMSFragment fragment  = SendSMSFragment.getInstance(intent);
-        myChangeFragment(fragment, TAG_SMS);
+        changeFragment(fragment);
     }
-
-
 }

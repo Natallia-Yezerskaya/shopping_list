@@ -32,6 +32,7 @@ import java.util.List;
 import io.realm.Sort;
 
 /**
+ * Адаптер для отображения всех списков покупок (используется в главном фрагменте)
  */
 public class ShoppingListRecyclerAdapter extends RecyclerView.Adapter<ShoppingListRecyclerAdapter.ShoppingListHolder> implements OnStartDragListener {
 
@@ -42,8 +43,9 @@ public class ShoppingListRecyclerAdapter extends RecyclerView.Adapter<ShoppingLi
     private Context context;
 
     @Override
-    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        mItemTouchHelper.startDrag(viewHolder);
+    public ShoppingListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.shopping_list_element, parent, false);
+        return new ShoppingListHolder(v);
     }
 
     public class ShoppingListHolder extends RecyclerView.ViewHolder {
@@ -55,7 +57,6 @@ public class ShoppingListRecyclerAdapter extends RecyclerView.Adapter<ShoppingLi
         public LinearLayout mItemLayout;
         private TextView mTotalChecked;
         public LinearLayout mLayoutName;
-
 
         public ShoppingListHolder(View itemView) {
             super(itemView);
@@ -74,34 +75,6 @@ public class ShoppingListRecyclerAdapter extends RecyclerView.Adapter<ShoppingLi
         this.mShoppingListItemAdapterCallback = mShoppingListItemAdapterCallback;
         this.shoppingLists = shoppingLists;
         this.context = context;
-    }
-
-    public void RefreshTotalChecked(TextView totalCheckedTextView, TextView tvName, LinearLayout layout, int position) {
-        ShoppingList shoppingList = shoppingLists.get(position);
-        String text = DataManager.shoppingListGetChecked(shoppingList) + "/" + shoppingList.getItems().size();
-        totalCheckedTextView.setText(text);
-
-        boolean shoppingListIsChecked = DataManager.shoppingListIsChecked(shoppingList);
-        if (shoppingListIsChecked){
-            DataManager.setShoppingListIsChecked(shoppingList,true);
-            layout.getBackground().setColorFilter(context.getResources().getColor(R.color.itemListBackgroundChecked), PorterDuff.Mode.MULTIPLY);
-            tvName.setPaintFlags(tvName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-        } else {
-            DataManager.setShoppingListIsChecked(shoppingList,false);
-            layout.getBackground().setColorFilter(context.getResources().getColor(R.color.itemListBackground), PorterDuff.Mode.MULTIPLY);
-            tvName.setPaintFlags(tvName.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-        }
-    }
-
-    @Override
-    public ShoppingListHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.shopping_list_element, parent, false);
-        return new ShoppingListHolder(v);
-    }
-
-    @Override
-    public int getItemCount() {
-        return shoppingLists.size();
     }
 
     @Override
@@ -134,7 +107,7 @@ public class ShoppingListRecyclerAdapter extends RecyclerView.Adapter<ShoppingLi
                 return false;
             }
         });
-
+// устанавливаем background
         if (shoppingList.isExpanded()){
             holder.mItemLayout.setBackgroundResource(R.drawable.rectangle_rounded_some);
         } else {
@@ -179,5 +152,34 @@ public class ShoppingListRecyclerAdapter extends RecyclerView.Adapter<ShoppingLi
         holder.mRecyclerView.setLayoutParams(params);
         ShoppingListItemRecyclerAdapter adapter = new ShoppingListItemRecyclerAdapter(values,false,this,holder.mItemLayout, mShoppingListItemAdapterCallback,position,context,null);
         holder.mRecyclerView.setAdapter(adapter);
+    }
+
+    public void RefreshTotalChecked(TextView totalCheckedTextView, TextView tvName, LinearLayout layout, int position) {
+        ShoppingList shoppingList = shoppingLists.get(position);
+        String text = DataManager.shoppingListGetChecked(shoppingList) + "/" + shoppingList.getItems().size();
+        totalCheckedTextView.setText(text);
+
+        boolean shoppingListIsChecked = DataManager.shoppingListIsChecked(shoppingList);
+        if (shoppingListIsChecked){
+            DataManager.setShoppingListIsChecked(shoppingList,true);
+            layout.getBackground().setColorFilter(context.getResources().getColor(R.color.itemListBackgroundChecked), PorterDuff.Mode.MULTIPLY);
+            tvName.setPaintFlags(tvName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            DataManager.setShoppingListIsChecked(shoppingList,false);
+            layout.getBackground().setColorFilter(context.getResources().getColor(R.color.itemListBackground), PorterDuff.Mode.MULTIPLY);
+            tvName.setPaintFlags(tvName.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        }
+    }
+
+
+
+    @Override
+    public int getItemCount() {
+        return shoppingLists.size();
+    }
+
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        mItemTouchHelper.startDrag(viewHolder);
     }
 }

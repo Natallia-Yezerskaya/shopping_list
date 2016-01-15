@@ -26,6 +26,10 @@ import com.natallia.shoppinglist.database.DataManager;
 import com.natallia.shoppinglist.database.ShoppingList;
 import java.util.List;
 
+/**
+ * Главный фрагмент - отображает все имеющиеся списки покупок. Отсюда происходит переход в режим
+ * редактирования отдельного списка.
+ */
 public class ShoppingListsFragment extends Fragment implements ShoppingListItemAdapterCallback {
 
     public OnShoppingListEdit onShoppingListEdit;
@@ -75,7 +79,6 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListItemA
     @Override
     public void onResume() {
         super.onResume();
-       // if(mActivityListener!=null) {mActivityListener.setTitle("Hello");}
     }
 
     @Override
@@ -100,7 +103,7 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListItemA
         super.onDestroy();
     }
 
-
+// Заполняем верхнее меню
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -114,16 +117,20 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListItemA
         super.onCreate(savedInstanceState);
     }
 
+    /*
+    Обработка нажатий кнопок меню
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
+            // Добавление нового списка
             case R.id.add:
                 ShoppingList shoppingList = DataManager.createShoppingList();
                 mAdapter.notifyDataSetChanged();
                 DataManager.createShoppingListItem(shoppingList);
                 onShoppingListEdit.onShoppingListEdit(shoppingList.getId());
-                Log.d("ShoppingList", "onOptionsItemSelected");
             break;
+            // Сортировка всех списков по заполнености и в хронологическом порядке
             case R.id.sort:
                 DataManager.sortShoppingLists();
                 mAdapter.notifyDataSetChanged();
@@ -132,6 +139,7 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListItemA
         return super.onOptionsItemSelected(item);
     }
 
+    // Обновляем UI списка покупок - сколько вычеркнуто и стили заголовка
     @Override
     public void onItemChecked(int position) {
 
@@ -142,8 +150,5 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListItemA
         ShoppingListRecyclerAdapter adapter = (ShoppingListRecyclerAdapter) mRecyclerView.getAdapter();
         LinearLayout layout = (LinearLayout) mRecyclerView.getChildAt(childIndex).findViewById(R.id.linear_layout_shopping_list);
         adapter.RefreshTotalChecked(tvTotal,tvName,layout, position);
-
-       // ShoppingListRecyclerAdapter adapter = (ShoppingListRecyclerAdapter) mRecyclerView.getAdapter();
-        //adapter.notifyDataSetChanged();
     }
 }

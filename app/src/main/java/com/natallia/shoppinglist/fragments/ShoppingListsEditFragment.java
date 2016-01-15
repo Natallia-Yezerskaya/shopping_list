@@ -50,17 +50,18 @@ import java.util.List;
 import io.realm.RealmList;
 import io.realm.Sort;
 
-
+/**
+ * Фрагмент редкатирования списка покупок - позволяет добвалять/изменять и удалять элементы списка.
+ * Также здесь доступны возможности по отправки смс и вставки элементов из избранных списков
+ */
 public class ShoppingListsEditFragment extends Fragment
         implements OnStartDragListener, TextView.OnEditorActionListener,
         ShoppingListItemAdapterCallback, SelectFavoritesDialog.SelectFavoritesDialogListener {
-    static final int RESULT_SPEECH_TO_TEXT = 2;
 
+    static final int RESULT_SPEECH_TO_TEXT = 2;
     private int mShoppingListId;
     private ShoppingList mShoppingList;
     public SendSMS sendSMS;
-
-
     private ActivityListener mActivityListener;
     private View mItemLayout;
     private LinearLayout mLayoutShoppingList;
@@ -69,8 +70,6 @@ public class ShoppingListsEditFragment extends Fragment
     private RecyclerView mRecyclerView;
     private ImageButton mButton_favorite;
     private ShoppingListItemRecyclerAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
     private ItemTouchHelper mItemTouchHelper;
 
     @Override
@@ -78,11 +77,9 @@ public class ShoppingListsEditFragment extends Fragment
         mItemTouchHelper.startDrag(viewHolder);
     }
 
-
     public static ShoppingListsEditFragment getInstance (Intent intent){
         ShoppingListsEditFragment fragment = new ShoppingListsEditFragment();
         fragment.mShoppingListId = intent.getIntExtra("ShoppingListId",0);
-
         return fragment;
     }
 
@@ -91,14 +88,12 @@ public class ShoppingListsEditFragment extends Fragment
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
-        // прописываем layout фрагмента
         View view = inflater.inflate(R.layout.shopping_list_edit_fragment, container, false);
-
         if (savedInstanceState != null){
             mShoppingListId = savedInstanceState.getInt("ShoppingListId",0);
             sendSMS = (MainActivity) getActivity();
         }
+        // получаем Shopping list по полученному id
         mShoppingList = DataManager.getShoppingListById(mShoppingListId);
         mTotalChecked = (TextView ) view.findViewById(R.id.total_checked);
         mLayoutShoppingList = (LinearLayout)view.findViewById(R.id.layout_shopping_list);
@@ -111,7 +106,7 @@ public class ShoppingListsEditFragment extends Fragment
                 final ShoppingListRenameDialog myDialogFragment = new ShoppingListRenameDialog();
                 myDialogFragment.mOldName = mTextViewName.getText().toString();
                 myDialogFragment.show(getActivity().getFragmentManager(), "ShoppingListRenameDialog");
-
+                //обработка нажатия клавиши "Сохранить" в диалоге
                 myDialogFragment.mListener = new ShoppingListRenameDialog.ShoppingListRenameDialogListener() {
                     @Override
                     public void onDialogPositiveClick(DialogFragment dialog, String text) {
@@ -124,6 +119,7 @@ public class ShoppingListsEditFragment extends Fragment
             }
         });
         mButton_favorite = (ImageButton) view.findViewById(R.id.favorite);
+        // при нажатии на кнопку Favorite меняем признак favorite у Shopping List
         mButton_favorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,12 +130,12 @@ public class ShoppingListsEditFragment extends Fragment
         });
 
         toggleFavorite();
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_edit_items); //отображает все шопинг листы
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));//TODO
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_edit_items);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         List<ShoppingListItem> values = mShoppingList.getItems().where().findAllSorted("position", Sort.DESCENDING);
         mAdapter = new ShoppingListItemRecyclerAdapter(values,true,this, mItemLayout, this, 0, getContext(),getActivity());
         mAdapter.setOnEditorActionListener(this);
-        mRecyclerView.setItemAnimator(null); // // TODO: убрана анимация item
+        mRecyclerView.setItemAnimator(null);
         mRecyclerView.setAdapter(mAdapter);
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback((ItemTouchHelperAdapter) mAdapter);
 
@@ -154,15 +150,11 @@ public class ShoppingListsEditFragment extends Fragment
         if (DataManager.shoppingListIsChecked(mShoppingList)){
             DataManager.setShoppingListIsChecked(mShoppingList, true);
             mLayoutShoppingList.getBackground().setColorFilter(getContext().getResources().getColor(R.color.itemListBackgroundChecked), PorterDuff.Mode.MULTIPLY);
-           // mLayoutShoppingList.setBackgroundResource(R.color.itemListBackgroundChecked);
         }
-        else{
+        else {
             DataManager.setShoppingListIsChecked(mShoppingList, false);
             mLayoutShoppingList.getBackground().setColorFilter(getContext().getResources().getColor(R.color.itemListBackground), PorterDuff.Mode.MULTIPLY);
-            //mLayoutShoppingList.setBackgroundResource(R.color.itemListBackground);
         }
-
-
     }
     private void toggleFavorite(){
         if (mShoppingList.isFavorite()){
@@ -172,7 +164,6 @@ public class ShoppingListsEditFragment extends Fragment
             mButton_favorite.setBackgroundResource(R.drawable.ic_action_favorite_out);
         }
     }
-
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -186,7 +177,6 @@ public class ShoppingListsEditFragment extends Fragment
         if (context instanceof ActivityListener){
             mActivityListener = (ActivityListener)context;
         }
-
     }
 
     @Override
@@ -216,8 +206,7 @@ public class ShoppingListsEditFragment extends Fragment
         super.onDestroy();
     }
 
-
-
+// устанавливаем видимость кнопок меню
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -250,7 +239,6 @@ public class ShoppingListsEditFragment extends Fragment
                 myDialogFragment.mListener = new SelectFavoritesDialog.SelectFavoritesDialogListener() {
                     @Override
                     public void onDialogPositiveClick(DialogFragment dialog) {
-
                         if (myDialogFragment.mSelectedItems.size() == 0) {
                             Log.d("No elements", "No elements");
                         } else {
@@ -296,12 +284,11 @@ public class ShoppingListsEditFragment extends Fragment
                 break;
             case R.id.send_sms:
                 List<ShoppingListItem> items = DataManager.getShoppingListById(mShoppingListId).getItems().where().findAllSorted("position", Sort.DESCENDING);
-                String txtsms = "Купи, пожалуйста! ";
+                String txtsms = getResources().getString(R.string.txt_sms);
                 int i = 0;
                 while (i < items.size()) {
                     Item curItem = items.get(i).getItem();
                     if (curItem.getName() == null || curItem.getName().equals("")){
-
                     }
                     else{
                         String itemName = curItem.getName().toString() + " "+String.valueOf(items.get(i).getAmount())+" шт.";
@@ -312,7 +299,6 @@ public class ShoppingListsEditFragment extends Fragment
                         }
                     }
                     i++;
-
                 }
                 sendSMS.sendSMS(txtsms);
                 break;
@@ -327,7 +313,6 @@ public class ShoppingListsEditFragment extends Fragment
         return super.onOptionsItemSelected(item);
     }
 
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -337,7 +322,6 @@ public class ShoppingListsEditFragment extends Fragment
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-       // mShoppingListId = savedInstanceState.getInt("ShoppingListId",0);
     }
 
     @Override
@@ -366,7 +350,6 @@ public class ShoppingListsEditFragment extends Fragment
         }
     }
 
-
     @Override
     public void onItemChecked(int position) {
         refreshTotalChecked();
@@ -375,9 +358,7 @@ public class ShoppingListsEditFragment extends Fragment
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         final SelectFavoritesDialog myDialog = (SelectFavoritesDialog) dialog;
-        if (myDialog.mSelectedItems.size() == 0) {
-            Log.d("No elements", "No elements");
-        } else {
+        if (myDialog.mSelectedItems.size() != 0) {
             for (int i = 0; i < myDialog.mSelectedItems.size(); i++) {
                 RealmList<ShoppingListItem> items = DataManager.getShoppingListById((int) myDialog.mSelectedItems.get(i)).getItems();
                 for (ShoppingListItem item : items) {

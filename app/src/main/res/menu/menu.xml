@@ -19,13 +19,6 @@
         app:showAsAction="always"
         android:visible="false"/>
 
-    <item
-        android:id="@+id/send_sms"
-        android:icon="@drawable/ic_content_mail"
-        android:orderInCategory="100"
-        android:title="SMS"
-        app:showAsAction="always"
-        android:visible="false"/>
 
     <item
 
@@ -41,6 +34,14 @@
         android:icon="@drawable/ic_content_sort"
         android:orderInCategory="100"
         android:title="Sort lists"
+        app:showAsAction="always"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/send_sms"
+        android:icon="@drawable/ic_content_mail"
+        android:orderInCategory="100"
+        android:title="SMS"
         app:showAsAction="always"
         android:visible="false"/>
 

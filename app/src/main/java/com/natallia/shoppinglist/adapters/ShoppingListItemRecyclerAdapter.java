@@ -30,6 +30,8 @@ import com.natallia.shoppinglist.helper.OnStartDragListener;
 import java.util.List;
 
 /**
+ * Адаптер для отображения элементов одного списка (используется внутри Адаптера отображающего списки
+ * и во фрагменте редактирования)
  */
 public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<ShoppingListItemRecyclerAdapter.ShoppingListItemHolder>
         implements ItemTouchHelperAdapter {
@@ -49,23 +51,18 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
         this.onEditorActionListener = onEditorActionListener;
     }
 
-    //будет хранить данные одного item
+
     public class ShoppingListItemHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder{
 
         public TextView mEditText_name;
-       // public TextView mTextView_name;
-       // public Button mButton_icon;
         public CheckBox mCheckBox;
         public View mItemView;
         public LinearLayout mItemLayout;
         public TextView mNumberPicker;
-        //public TextView mNumberPickerTv;
         public Button mNumberPickerPlus;
         public Button mNumberPickerMinus;
 
-
         public ShoppingListItemHolder(View itemView) {
-
             super(itemView);
             mItemView = itemView;
             mItemLayout =(LinearLayout)itemView.findViewById(R.id.linear_layout_item);
@@ -84,7 +81,6 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
             Drawable background = itemView.getBackground();
             if (background instanceof ColorDrawable)
                 mColorBackground = ((ColorDrawable) background).getColor();
-
             itemView.setBackgroundColor(Color.LTGRAY);
         }
 
@@ -93,12 +89,8 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
             itemView.setBackgroundColor(mColorBackground);
         }
 
-
     }
 
-
-
-    // конструктор
     public ShoppingListItemRecyclerAdapter(List<ShoppingListItem> shoppingListItems, boolean editMode, OnStartDragListener dragStartListener, View mItemLayout, ShoppingListItemAdapterCallback mShoppingListItemAdapterCallback, int position, Context context,Activity activity) {
 
         this.shoppingListItems = shoppingListItems;
@@ -123,12 +115,6 @@ public class ShoppingListItemRecyclerAdapter extends RecyclerView.Adapter<Shoppi
         return new ShoppingListItemHolder(v);
     }
 
-   /*
-    public void insertItem(List<ShoppingListItem> items) {
-        shoppingListItems = items;
-        notifyItemInserted(0);
-    }
-*/
     @Override
     public int getItemCount() {
         return shoppingListItems.size();

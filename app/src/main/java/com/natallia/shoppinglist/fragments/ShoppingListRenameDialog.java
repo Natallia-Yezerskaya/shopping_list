@@ -15,7 +15,7 @@ import android.widget.EditText;
 import com.natallia.shoppinglist.R;
 
 /**
- * Created by Natallia on 10.01.2016.
+ * Диалог переименовывания списка покупок
  */
 public class ShoppingListRenameDialog extends DialogFragment {
     public String mOldName;

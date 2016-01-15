@@ -6,7 +6,7 @@ import io.realm.Sort;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * Created by Administrator on 20.12.15.
+ * Список покупок (сущность)
  */
 public class ShoppingList extends RealmObject {
     @PrimaryKey

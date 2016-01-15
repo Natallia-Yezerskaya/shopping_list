@@ -27,12 +27,12 @@ import com.natallia.shoppinglist.database.Item;
 
 import java.util.ArrayList;
 
-
+/**
+ * Фрагмент для отправки списка попупок в виде смс
+ */
 public class SendSMSFragment extends Fragment {
 
     static final int PICK_CONTACT_REQUEST = 1;
-    static final int RESULT_SPEECH_TO_TEXT = 2;
-
     private ActivityListener mActivityListener;
     public OnShoppingListEdit onShoppingListEdit;
     private Button btnSendSms;
@@ -60,6 +60,7 @@ public class SendSMSFragment extends Fragment {
         txtSMS.setText(mSmsText);
         txtPhoneNumber = (EditText) view.findViewById(R.id.txtPhoneNo);
         btnContacts = (Button) view.findViewById(R.id.btn_contacts);
+        // открываем "Контакты" при нажатии на кнопку
         btnContacts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,17 +145,12 @@ public class SendSMSFragment extends Fragment {
         smsIntent.putExtra("sms_body", message);
         smsIntent.putExtra("address",phoneNumber);
         startActivity(smsIntent);
-
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RESULT_SPEECH_TO_TEXT && resultCode == Activity.RESULT_OK) {
-            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            txtSMS.setText(matches.get(0));
-        }
+        // вставляем выбранный контакт
         if (requestCode == PICK_CONTACT_REQUEST) {
             if (resultCode == Activity.RESULT_OK) {
                 Uri contactUri = data.getData();

@@ -3,8 +3,8 @@ package com.natallia.shoppinglist.database;
 import io.realm.RealmObject;
 
 /**
- * Created by Administrator on 20.12.15.
- */
+ * Связь между элементом списка покупок и самим списком (сущность)
+ * */
 public class ShoppingListItem extends RealmObject {
 
     private int id;
@@ -13,7 +13,6 @@ public class ShoppingListItem extends RealmObject {
     private boolean checked;
     private float amount;
 
-    // TODO добавить ед.изм
 
     public boolean isChecked() {
         return checked;

@@ -13,8 +13,8 @@ import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
-/*
-класс для получения данных из базы (в данном случае из realm)
+/**
+ * Класс для работы с бд (в данном случае realm)
  */
 public class DataManager {
 
@@ -28,55 +28,60 @@ public class DataManager {
     }
 
     public static List<Category> getCategories() {
-
         final RealmResults<Category> results = realm.where(Category.class).findAll();
         return results;
     }
 
+    // получаем список всех ShoppingList, отсортированный по позиции
     public static List<ShoppingList> getShoppingLists() {
-       // final RealmResults<ShoppingList> results = realm.where(ShoppingList.class).findAllSorted("isChecked", Sort.ASCENDING, "id", Sort.DESCENDING);
         final RealmResults<ShoppingList> results = realm.where(ShoppingList.class).findAllSorted("position", Sort.DESCENDING);
         return results;
     }
 
+    // сортируем список всех ShoppingList, вычеркнутые списки внизу
     public static void sortShoppingLists() {
         realm.beginTransaction();
-
         RealmResults<ShoppingList> results = realm.where(ShoppingList.class).findAllSorted("isChecked", Sort.DESCENDING, "id", Sort.ASCENDING);
-
         for (int i = 0; i < results.size(); i++) {
             results.get(i).setPosition(i);
         }
         realm.commitTransaction();
     }
+
+    // устанавливаем название списка
     public static void setNameShoppingList(ShoppingList shoppingList, String name) {
         realm.beginTransaction();
         shoppingList.setName(name);
         realm.commitTransaction();
     }
+
+    // устанавливаем name элемента списка (item)
     public static void setNameShoppingListItem(Item item, String name) {
         realm.beginTransaction();
         item.setName(name);
         realm.commitTransaction();
     }
 
+    // устанавливаем необходимое количество элемента списка (item)
     public static void setAmountShoppingListItem(ShoppingListItem shoppingListItem, Float amount) {
         realm.beginTransaction();
         shoppingListItem.setAmount(amount);
         realm.commitTransaction();
     }
-    public static ShoppingList getShoppingListById(int id){
 
+    // получаем список по id
+    public static ShoppingList getShoppingListById(int id){
         ShoppingList shoppingList = realm.where(ShoppingList.class).equalTo("id",id).findFirst();
         return shoppingList;
     }
 
+    // меняем признак expanded у Shopping list
     public static void toggleExpanded(ShoppingList shoppingList) {
         realm.beginTransaction();
         shoppingList.setExpanded(!shoppingList.isExpanded());
         realm.commitTransaction();
     }
-
+    // меняем признак favorite (избранный) у Shopping list
     public static void toggleFavorite(ShoppingList shoppingList) {
         realm.beginTransaction();
         shoppingList.setFavorite(!shoppingList.isFavorite());
@@ -89,13 +94,14 @@ public class DataManager {
         realm.commitTransaction();
     }
 
+    // удаляем элемент из списка
     public static void  deleteShoppingListItem(ShoppingListItem shoppingListItem) {
-
         realm.beginTransaction();
         shoppingListItem.removeFromRealm();
         realm.commitTransaction();
     }
 
+    // удаляем список из базы
     public static void  deleteShoppingList(ShoppingList shoppingList) {
         realm.beginTransaction();
         shoppingList.removeFromRealm();
@@ -198,15 +204,11 @@ public class DataManager {
 
     }
     public static void InitializeData() {
-        //  showStatus("Perform basic Create/Read/Update/Delete (CRUD) operations...");
-
-        // All writes must be wrapped in a transaction to facilitate safe multi threading
         realm.beginTransaction();
         Category category;
         // Add a category
         if (realm.allObjects(Category.class).size() == 0) {
-            int id = 0;//realm.allObjects(Category.class).max("id").intValue();
-            ;
+            int id = 0;
             category = realm.createObject(Category.class);
             category.setId(getNextId(Category.class));
             category.setName("Продукты");
@@ -215,7 +217,6 @@ public class DataManager {
             category.setId(getNextId(Category.class));
             category.setName("Бытовая химия");
 
-           // TODO перенести в стринги
             category = realm.where(Category.class).findFirst();
             Log.d(TAG, category.getName());
         }
@@ -308,26 +309,19 @@ public class DataManager {
         realm.commitTransaction();
     }
 
+    // меняем позиции элементов в списке
     public static void swapShoppingListItems(List<ShoppingListItem> shoppingListItems, int fromPosition, int toPosition) {
         if (fromPosition > toPosition) {
             int x = toPosition;
             toPosition = fromPosition;
             fromPosition = x;
         }
-
         realm.beginTransaction();
-
-        ShoppingListItem from = shoppingListItems.get(fromPosition);
-        ShoppingListItem to = shoppingListItems.get(toPosition);
-
-        int temp = from.getPosition();
-        from.setPosition(to.getPosition());
-        to.setPosition(temp);
-       // shoppingListItems.remove(from);
-       // shoppingListItems.add(shoppingListItems.indexOf(to), from);
-        //shoppingListItems.remove(to);
-        //shoppingListItems.add(fromPosition, to);
-        //Collections.swap(shoppingListItems, fromPosition, toPosition);
+            ShoppingListItem from = shoppingListItems.get(fromPosition);
+            ShoppingListItem to = shoppingListItems.get(toPosition);
+            int temp = from.getPosition();
+            from.setPosition(to.getPosition());
+            to.setPosition(temp);
         realm.commitTransaction();
     }
 }

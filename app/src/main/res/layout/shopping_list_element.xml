@@ -16,6 +16,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:id="@+id/btn_favorite"
+            android:layout_gravity="center_vertical"
             android:background="@drawable/ic_action_favorite_out"/>
 
         <LinearLayout

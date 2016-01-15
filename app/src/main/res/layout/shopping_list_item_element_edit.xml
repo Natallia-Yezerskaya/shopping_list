@@ -7,15 +7,21 @@
     android:layout_marginBottom="2dp"
     android:layout_marginTop="2dp"
     android:paddingLeft="15dp"
-    android:paddingTop="7dp"
-    android:weightSum="100"
+    android:paddingRight="15dp"
     android:id="@+id/linear_layout_item">
 
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/checkbox_item"
+        android:layout_gravity="center_vertical"
         android:background="@color/checkBoxBackground" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_vertical"
+        android:weightSum="100">
 
     <EditText
         android:layout_width="0dp"
@@ -23,15 +29,16 @@
         android:textColor="@color/primaryFont"
         android:textSize="20dp"
         android:id="@+id/et_item_name"
-        android:layout_weight="60"
+        android:layout_weight="65"
         android:singleLine="true"
         android:imeOptions="actionNext" />
 
 
     <LinearLayout
-        android:layout_weight="40"
+        android:layout_weight="35"
         android:layout_width="0dp"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal|center_vertical">
     <Button
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -48,12 +55,13 @@
         android:textColor="@color/primaryFont"
         android:maxLength="4"/>
 
-    <Button
+        <Button
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:id="@+id/btn_plus"
         android:text="+"
         android:background="@color/checkBoxBackground"/>
+    </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

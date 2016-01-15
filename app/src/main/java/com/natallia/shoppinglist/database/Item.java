@@ -3,15 +3,15 @@ package com.natallia.shoppinglist.database;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-
+/**
+ * Элемент списка покупок (сущность)
+ */
 public class Item  extends RealmObject{
 
     @PrimaryKey
     private int id;
     private String name;
     private Category category;
-
-
 
     public String getName() {
         return name;
@@ -36,6 +36,5 @@ public class Item  extends RealmObject{
     public void setId(int id) {
         this.id = id;
     }
-
 
 }

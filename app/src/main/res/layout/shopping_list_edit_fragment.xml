@@ -11,23 +11,27 @@
         android:orientation="horizontal"
         android:weightSum="100"
         android:id="@+id/layout_shopping_list"
+        android:layout_gravity="center_vertical"
         android:background="@drawable/rectangle_rounded_some">
 
         <ImageButton
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:id="@+id/favorite"
+            android:layout_gravity="center_vertical"
             android:background="@drawable/ic_action_favorite_out" />
 
         <TextView
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="match_parent"
             android:id="@+id/ed_shopping_list_name"
             android:textColor="@color/primaryFont"
             android:textSize="20dp"
             android:hint="Новый список"
             android:singleLine="true"
-            android:layout_weight="80" />
+            android:layout_weight="80"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"/>
 
         <TextView
             android:layout_width="0dp"
@@ -35,6 +39,7 @@
             android:id="@+id/total_checked"
             android:hint="1/1"
             android:textColor="@color/primaryFont"
+            android:layout_gravity="center_vertical"
             android:layout_weight="20" />
 
     </LinearLayout>

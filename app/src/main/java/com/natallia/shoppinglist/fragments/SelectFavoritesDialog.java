@@ -25,14 +25,12 @@ import java.util.Currency;
 import java.util.List;
 
 /**
- * Created by Natallia on 11.01.2016.
+ * Диалог для добавления элементов существующих избранных списков в текущий список покупок
  */
-
 public class SelectFavoritesDialog extends DialogFragment {
     public ArrayList<Integer> mSelectedItems;
     private int mIdShoppingList;
     public SelectFavoritesDialogListener mListener;
-
 
     public interface SelectFavoritesDialogListener {
         public void onDialogPositiveClick(DialogFragment dialog);
